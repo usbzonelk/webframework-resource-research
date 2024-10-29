@@ -300,6 +300,89 @@ TSWLatexianTemp*
 # xwatermark package
 *.xwm
 
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.pid
+*.seed
+*.sqlite3
+
+# Node.js / Express.js
+node_modules/
+dist/
+.nyc_output/
+coverage/
+.vscode/
+.idea/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ASP.NET Core
+bin/
+obj/
+**/*.user
+**/*.vspscc
+**/*.vssscc
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+
+# Elixir / Phoenix
+/_build/
+deps/
+.erlang.cookie
+test/tmp
+**/node_modules/
+**/log/
+config/*.secret.exs
+*.ez
+.coverage
+*.beam
+
+# Go (using stdlib)
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.a
+*.test
+# Go's Module Dependencies
+go.sum
+vendor/
+
+# Laravel / PHP
+/vendor/
+node_modules/
+storage/*.key
+/public/storage
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*.php
+
+# PHP Storm & VS Code
+/.idea/
+.vscode/
+*.code-workspace
+
+# System files (macOS, Windows)
+.DS_Store
+Thumbs.db
+
+# Additional logs and temp files
+*.log
+*.pid
+
 # REVTeX puts footnotes in the bibliography by default, unless the nofootinbib
 # option is specified. Footnotes are the stored in a file with suffix Notes.bib.
 # Uncomment the next line to have this generated file ignored.

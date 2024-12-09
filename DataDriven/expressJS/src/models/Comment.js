@@ -7,6 +7,12 @@ const commentSchema = new mongoose.Schema({
     required: true,
     maxlength: 50,
   },
+  id: {
+    type: Number,
+    required: true,
+    index: true,
+    unique: true,
+  },
   content: {
     type: String,
     required: true,
@@ -15,7 +21,7 @@ const commentSchema = new mongoose.Schema({
     type: Date,
     default: new Date(),
   },
-  post:    {
+  post: {
     type: mongoose.Schema.ObjectId,
     ref: "Post",
     required: true,

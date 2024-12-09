@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Author = require("./Author");
+const Category = require("./Category");
 
 const postSchema = new mongoose.Schema({
   title: {
@@ -6,6 +8,18 @@ const postSchema = new mongoose.Schema({
     default: "",
     required: true,
     maxlength: 200,
+  },
+  slug: {
+    type: String,
+    required: true,
+    index: true,
+    unique: true,
+  },
+  id: {
+    type: Number,
+    required: true,
+    index: true,
+    unique: true,
   },
   content: {
     type: String,

@@ -1,0 +1,322 @@
+openapi: 3.0.0
+info:
+  title: Blog Benchmark API
+  version: 1.0.0
+  description: API designed for stress testing database operations in a blogging system.
+
+paths:
+  /posts:
+    get:
+      summary: Retrieve paginated posts
+      description: Fetch posts with pagination support using page and size parameters.
+      parameters:
+        - name: page
+          in: query
+          description: The page number to retrieve (default is 1).
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: size
+          in: query
+          description: The number of items per page (default is 10).
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+      responses:
+        '200':
+          description: Successful retrieval of paginated posts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 2
+                  pageSize:
+                    type: integer
+                    example: 15
+                  totalItems:
+                    type: integer
+                    example: 1000
+                  totalPages:
+                    type: integer
+                    example: 67
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        postID:
+                          type: integer
+                          example: 101
+                        title:
+                          type: string
+                          example: "A Sample Blog Post"
+                        content:
+                          type: string
+                          example: "This is an example of a blog post."
+                        authorID:
+                          type: integer
+                          example: 5
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2024-12-07T12:00:00Z"
+
+
+  /posts/create:
+    post:
+      summary: Create a single blog post
+      description: Create a single blog post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkCreatePostRequest'
+      responses:
+        200:
+          description: Posts created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCreatePostsResponse'
+
+  /posts/bulk-status-update:
+    put:
+      summary: Bulk-update the status of posts
+      description: Bulk-update the status (Published, Draft, Archived) of multiple posts based on criteria. Tests batch update operations with conditional logic.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdatePostStatusRequest'
+      responses:
+        200:
+          description: Posts updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUpdatePostStatusResponse'
+                
+  /popular-posts:
+    get:
+      summary: Fetch popular posts
+      description: Fetch the posts with the highest number of comments. Tests aggregations and sorting on large datasets.
+      responses:
+        200:
+          description: Popular posts retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopularPostsResponse'
+
+  /posts/search-posts:
+    get:
+      summary: Retrieve posts with search query
+      description: Retrieve all the posts which contain the requested search query in its title and content.
+      responses:
+        200:
+          description: Posts retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryPostStatsResponse'
+  /posts/sort-by-date:
+    get:
+      summary: Retrieve all posts sorted according to date
+      description: Retrieve all the posts sorted according to the date.
+      responses:
+        200:
+          description: Posts retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryPostStatsResponse'
+  /posts/edit:
+    put:
+      summary: Edit and update the given post
+      description: Edit and update the given post.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkUpdatePostStatusRequest'
+      responses:
+        200:
+          description: Posts updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkUpdatePostStatusResponse'
+
+  /comments/bulk-delete:
+    delete:
+      summary: Bulk-delete comments
+      description: Bulk-delete comments for a given list of post IDs. Tests batch delete operations with filtering and foreign key constraints.
+      parameters:
+        - name: postIDs
+          in: query
+          required: true
+          description: Comma-separated list of post IDs whose comments should be deleted.
+          schema:
+            type: string
+      responses:
+        200:
+          description: Comments deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDeleteCommentsResponse'
+
+  /comments/create:
+    post:
+      summary: Bulk-add comments to a post
+      description: Bulk-add comments to specific posts. Simulates high-volume inserts on a related table with foreign key constraints.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkAddCommentsRequest'
+      responses:
+        200:
+          description: Comments added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkAddCommentsResponse'
+
+
+
+
+
+  /author/posts:
+    get:
+      summary: Get the posts by the author
+      description: Get all the posts by the author passed by query parameter.
+      responses:
+        200:
+          description: Posts retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryPostStatsResponse'
+
+
+
+
+
+components:
+  schemas:
+    BulkCreatePostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        authorID:
+          type: integer
+    BulkCreatePostsResponse:
+      type: object
+      properties:
+        successCount:
+          type: integer
+        failedCount:
+          type: integer
+        failedPosts:
+          type: array
+          items:
+            type: string
+    BulkUpdatePostStatusRequest:
+      type: object
+      properties:
+        postIDs:
+          type: array
+          items:
+            type: integer
+        status:
+          type: string
+          enum:
+            - Published
+            - Draft
+            - Archived
+    BulkUpdatePostStatusResponse:
+      type: object
+      properties:
+        updatedCount:
+          type: integer
+        failedCount:
+          type: integer
+    BulkDeleteCommentsResponse:
+      type: object
+      properties:
+        deletedCount:
+          type: integer
+        failedCount:
+          type: integer
+    BulkAddCommentsRequest:
+      type: object
+      properties:
+        postID:
+          type: integer
+        comments:
+          type: array
+          items:
+            type: object
+            properties:
+              authorID:
+                type: integer
+              content:
+                type: string
+    BulkAddCommentsResponse:
+      type: object
+      properties:
+        successCount:
+          type: integer
+        failedCount:
+          type: integer
+    PopularPostsResponse:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            type: object
+            properties:
+              postID:
+                type: integer
+              title:
+                type: string
+              commentCount:
+                type: integer
+    CategoryPostStatsResponse:
+      type: object
+      properties:
+        posts:
+          type: array
+          items:
+            type: object
+            properties:
+              postID:
+                type: integer
+              title:
+                type: string
+              content:
+                type: string
+              authorID:
+                type: integer
+              createdAt:
+                type: string
+                format: date-time
+              updatedAt:
+                type: string
+                format: date-time

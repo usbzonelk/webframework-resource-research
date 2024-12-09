@@ -12,6 +12,12 @@ const authorSchema = new mongoose.Schema({
     unique: true,
     index: true,
   },
+  id: {
+    type: Number,
+    required: true,
+    unique: true,
+    index: true,
+  },
 });
 authorSchema.plugin(require("mongoose-autopopulate"));
 module.exports = mongoose.model("Author", authorSchema);

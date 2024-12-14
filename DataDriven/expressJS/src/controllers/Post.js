@@ -1,7 +1,8 @@
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
 
 exports.create = async (req, res) => {
-  const postData = Object.assign({}, req.body);
+  const postData = Object.assign({}, req.body.postData);
   try {
     const postCreation = await Post.create(postData).then((postDataTemp) =>
       postDataTemp.toObject()
@@ -58,7 +59,7 @@ exports.bulkStatusUpdate = async (req, res) => {
 };
 
 exports.edit = async (req, res) => {
-  const postData = Object.assign([], req.body);
+  const postData = Object.assign([], req.body.postData);
   if (Object.keys(postData).length < 1 || !Object.hasOwn(postData, "id"))
     return res.status(422).json({ error: "Invalid request." });
   try {
@@ -74,15 +75,16 @@ exports.edit = async (req, res) => {
 };
 
 exports.search = async (req, res) => {
-  const search = req.query;
-  if (!search) return res.status(422).json({ error: "Invalid request data." });
   try {
+    const search = req.query.search;
+    if (!search)
+      return res.status(422).json({ error: "Invalid request data." });
     const posts = await Post.find({
       $or: [
         { title: { $regex: `.*${search}.*`, $options: "i" } },
         { content: { $regex: `.*${search}.*`, $options: "i" } },
       ],
-    })
+    });
     if (posts.length < 1) {
       res.status(200).json({ result: "No posts found." });
     } else {
@@ -107,9 +109,26 @@ exports.sortByDate = async (req, res) => {
 };
 
 exports.popularPosts = async (req, res) => {
-  //
   try {
-    const posts = await Post.find({}).sort({ views: -1 }).limit(10);
+    const maxPosts = await Comment.aggregate([
+      {
+        $group: {
+          _id: "$post",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+    ]);
+    let postIDs = [];
+    if (maxPosts.legnth < 1) {
+      res.status(200).json({ result: "No posts found." });
+    } else {
+      postIDs = maxPosts.map(({ _id }) => _id);
+    }
+    const posts = await Post.find({ _id: { $in: postIDs } })
+      .populate("authors")
+      .populate("categories");
     if (posts.length < 1) {
       res.status(200).json({ result: "No posts found." });
     } else {

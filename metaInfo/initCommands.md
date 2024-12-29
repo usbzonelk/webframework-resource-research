@@ -10,3 +10,17 @@ docker run --detach \
   mariadb:latest
 php artisan migrate
 composer run dev
+
+-------
+Erlang install:
+curl -fsSO https://elixir-lang.org/install.sh
+sh install.sh elixir@1.18.1 otp@27.1.2
+installs_dir=$HOME/.elixir-install/installs
+export PATH=$installs_dir/otp/27.1.2/bin:$PATH
+export PATH=$installs_dir/elixir/1.18.1-otp-27/bin:$PATH
+iex
+
+~ Erlang/OTP 27 [erts-15.1.2] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [jit:ns]
+~ Elixir 1.18.1 (compiled with Erlang/OTP 27)
+curl https://new.phoenixframework.org/myapp | sh
+mix phx.new myApp --no-html --no-assets --no-live 

@@ -1,5 +1,5 @@
 const dotenv = require("dotenv").config();
 
-const serverPort = process.env.SERVERPORT;
+const serverPort = 55001;
 
 module.exports = { serverPort };

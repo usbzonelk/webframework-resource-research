@@ -12,6 +12,15 @@ php artisan migrate
 composer run dev
 
 -------
+docker pull postgres
+
+docker run --detach -it --rm \
+  -e POSTGRES_PASSWORD=123456 \
+  -e POSTGRES_USER=root \
+  -p 61014:5432 \
+  postgres
+
+--------
 Erlang install:
 curl -fsSO https://elixir-lang.org/install.sh
 sh install.sh elixir@1.18.1 otp@27.1.2
@@ -24,3 +33,8 @@ iex
 ~ Elixir 1.18.1 (compiled with Erlang/OTP 27)
 curl https://new.phoenixframework.org/myapp | sh
 mix phx.new myApp --no-html --no-assets --no-live 
+
+------
+
+https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
+ rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.4.linux-amd64.tar.gz

@@ -5,32 +5,33 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"Gin/internal/server/controllers"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	r := gin.Default()
+	var allControllers = controllers.NewServer()
 
+	r := gin.Default()
 	r.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true, // Add your frontend URL
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true, // Enable cookies/auth
 	}))
 
-	r.GET("/", s.HelloWorldHandler)
+	r.GET("/posts", allControllers.GetPostsHandler)
+	r.GET("/posts/popular", allControllers.PopularPostsHandler)
+	r.GET("/posts/search", allControllers.SearchPostsHandler)
+	r.GET("/posts/sort-by-date", allControllers.SortPostsByDateHandler)
+	r.POST("/posts/create", allControllers.CreatePostHandler)
+	r.PUT("/posts/status-update", allControllers.BulkStatusUpdateHandler)
+	r.PUT("/posts/edit", allControllers.EditPostHandler)
 
-	r.GET("/health", s.healthHandler)
+	r.POST("/authors/get-posts", allControllers.GetPostsByAuthorHandler)
+
+	r.POST("/comments/create-bulk", allControllers.CreateBulkCommentsHandler)
+	r.POST("/comments/delete-bulk", allControllers.DeleteBulkCommentsHandler)
 
 	return r
-}
-
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	c.JSON(http.StatusOK, resp)
-}
-
-func (s *Server) healthHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, s.db.Health())
 }

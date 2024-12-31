@@ -36,7 +36,7 @@ defmodule AppWeb.AuthorController do
     end
   rescue
     e ->
-      json(conn, %{error: "#{e}"})
+      render(conn, %{error: "#{e}"})
       IO.inspect(e, label: "Error")
   end
 end

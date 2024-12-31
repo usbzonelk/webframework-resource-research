@@ -1,6 +1,7 @@
 defmodule AppWeb.Jason.Encoder do
   defimpl Jason.Encoder, for: App.Blog.Author do
     @impl Jason.Encoder
+
     def encode(%App.Blog.Author{id: id, name: name, email: email}, opts) do
       Jason.Encode.map(
         %{
@@ -13,9 +14,48 @@ defmodule AppWeb.Jason.Encoder do
     end
   end
 
+  defimpl Jason.Encoder, for: App.Blog.Comment do
+    @impl Jason.Encoder
+    def encode_component(entity) do
+      if(is_list(entity)) do
+        Enum.map(entity, fn entity ->
+          case Jason.encode(entity) do
+            {:ok, json} -> json
+            {:error, _reason} -> nil
+          end
+        end)
+      else
+        nil
+      end
+    end
+
+    def encode(
+          %App.Blog.Comment{
+            id: id,
+            authorName: authorName,
+            content: content,
+            post: post,
+            lastUpdated: lastUpdated
+          },
+          opts
+        ) do
+      Jason.Encode.map(
+        %{
+          "id" => id,
+          "authorName" => authorName,
+          "content" => content,
+          "post" => encode_component(post),
+          "lastUpdated" => lastUpdated
+        },
+        opts
+      )
+    end
+  end
+
   defimpl Jason.Encoder, for: App.Blog.Category do
     @impl Jason.Encoder
-    def encode(%App.Blog.Author{id: id, name: name}, opts) do
+
+    def encode(%App.Blog.Category{id: id, name: name}, opts) do
       Jason.Encode.map(
         %{
           "id" => id,
@@ -28,26 +68,11 @@ defmodule AppWeb.Jason.Encoder do
 
   defimpl Jason.Encoder, for: App.Blog.Post do
     @impl Jason.Encoder
-    def encode_authors(authors) do
-      if(is_list(authors)) do
-        Enum.map(authors, fn author ->
-          case Jason.encode(author) do
+    def encode_component(entity) do
+      if(is_list(entity)) do
+        Enum.map(entity, fn entity ->
+          case Jason.encode(entity) do
             {:ok, json} -> json
-            # If there's an error encoding an author, return null
-            {:error, _reason} -> nil
-          end
-        end)
-      else
-        nil
-      end
-    end
-
-    def encode_categories(categories) do
-      if(is_list(categories)) do
-        Enum.map(categories, fn categories ->
-          case Jason.encode(categories) do
-            {:ok, json} -> json
-            # If there's an error encoding an author, return null
             {:error, _reason} -> nil
           end
         end)
@@ -77,8 +102,8 @@ defmodule AppWeb.Jason.Encoder do
           "content" => content,
           "postStatus" => postStatus,
           "lastUpdated" => lastUpdated,
-          "authors" => encode_authors(authors),
-          "categories" => encode_categories(categories)
+          "authors" => encode_component(authors),
+          "categories" => encode_component(categories)
         }
         |> Map.drop(
           ["authors", "categories"]

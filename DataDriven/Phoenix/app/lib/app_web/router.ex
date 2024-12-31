@@ -3,7 +3,18 @@ defmodule AppWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    post "/authors/posts", AppWeb.AuthorController, :get_posts
+    get "/posts", AppWeb.PostController, :get
+    get "/posts/popular", AppWeb.PostController, :popular_posts
+    get "/posts/search", AppWeb.PostController, :search
+    get "/posts/sort-by-date", AppWeb.PostController, :sort_by_date
+    post "/posts/create", AppWeb.PostController, :create
+    put "/posts/status-update", AppWeb.PostController, :bulk_status_update
+    put "/posts/edit", AppWeb.PostController, :edit
+
+    post "/authors/get-posts", AppWeb.AuthorController, :get_posts
+
+    post "/comments/create-bulk", AppWeb.CommentController, :create_bulk
+    post "/comments/delete-bulk", AppWeb.CommentController, :delete_bulk
   end
 
   scope "/api", AppWeb do

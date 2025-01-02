@@ -136,7 +136,7 @@ func (s *Server) SearchPostsHandler(c *gin.Context) {
 	}
 
 	var posts []models.Post
-	if err := s.db.Where("title LIKE ? OR content LIKE ?", "%"+search+"%", "%"+search+"%").Find(&posts).Error; err != nil {
+	if err := s.db.Where("title LIKE ? OR content LIKE ?", "%"+search+"%", "%"+search+"%").Preload("Authors").Find(&posts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -150,7 +150,7 @@ func (s *Server) SearchPostsHandler(c *gin.Context) {
 
 func (s *Server) SortPostsByDateHandler(c *gin.Context) {
 	var posts []models.Post
-	if err := s.db.Order("last_updated desc").Find(&posts).Error; err != nil {
+	if err := s.db.Order("last_updated desc").Preload("Authors").Find(&posts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -168,7 +168,7 @@ func (s *Server) PopularPostsHandler(c *gin.Context) {
 		Count  int
 	}
 
-	if err := s.db.Table("comments").Select("post_id, count(*) as count").Group("post_id").Order("count desc").Limit(10).Scan(&maxPosts).Error; err != nil {
+	if err := s.db.Table("comments").Select("post_id, count(*) as count").Preload("Authors").Group("post_id").Order("count desc").Limit(10).Scan(&maxPosts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

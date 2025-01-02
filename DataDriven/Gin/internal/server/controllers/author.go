@@ -10,6 +10,7 @@ import (
 )
 
 func (s *Server) GetPostsByAuthorHandler(c *gin.Context) {
+
 	var database = s.db
 	var req struct {
 		Emails []string `json:"emails"`
@@ -38,7 +39,10 @@ func (s *Server) GetPostsByAuthorHandler(c *gin.Context) {
 	}
 
 	var posts []models.Post
-	if err := database.Where("author_id IN (?)", authorIDs).Find(&posts).Error; err != nil {
+	if err := database.
+		Joins("JOIN post_authors pa ON pa.post_id = posts.id").
+		Where("pa.author_id IN (?)", authorIDs).Preload("Authors").
+		Find(&posts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

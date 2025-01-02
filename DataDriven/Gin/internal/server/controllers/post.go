@@ -1,13 +1,28 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"Gin/internal/models"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
+
+type PostInputDTO struct {
+	PostData struct {
+		Title       string    `json:"title"`
+		Slug        string    `json:"slug"`
+		Content     string    `json:"content"`
+		PostStatus  string    `json:"postStatus"`
+		LastUpdated time.Time `json:"lastUpdated"`
+		Authors     []uint    `json:"authors"`
+		Categories  []uint    `json:"categories"`
+	} `json:"postData"`
+}
 
 func (s *Server) GetPostsHandler(c *gin.Context) {
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -37,13 +52,31 @@ func (s *Server) GetPostsHandler(c *gin.Context) {
 }
 
 func (s *Server) CreatePostHandler(c *gin.Context) {
-	var postData models.Post
-	if err := c.BindJSON(&postData); err != nil {
+	var postData PostInputDTO
+	if err := c.ShouldBindBodyWith(&postData, binding.JSON); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	if err := s.db.Create(&postData).Error; err != nil {
+	var authors []models.Author
+	if err := s.db.Where("id IN ?", postData.PostData.Authors).Find(&authors).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve authors: " + err.Error()})
+		return
+	}
+	var categories []models.Category
+	if err := s.db.Where("id IN ?", postData.PostData.Categories).Find(&categories).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve categories: " + err.Error()})
+		return
+	}
+	postNew := models.Post{
+		Slug:        postData.PostData.Slug,
+		Title:       postData.PostData.Title,
+		Content:     postData.PostData.Content,
+		LastUpdated: postData.PostData.LastUpdated,
+		PostStatus:  postData.PostData.PostStatus,
+		Categories:  categories,
+		Authors:     authors,
+	}
+	if err := s.db.Create(&postNew).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -139,7 +172,7 @@ func (s *Server) PopularPostsHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
+	fmt.Print((maxPosts))
 	if len(maxPosts) < 1 {
 		c.JSON(http.StatusOK, gin.H{"result": "No posts found."})
 		return

@@ -9,5 +9,7 @@ defmodule App.Repo.Migrations.CreatePosts do
       add :postStatus, :string
       add :lastUpdated, :naive_datetime
     end
+
+    create unique_index(:posts, :slug)
   end
 end

@@ -10,6 +10,7 @@ defmodule AppWeb.CommentController do
   import Ecto.Query, only: [from: 2]
 
   def create_bulk(conn, %{"comments_data" => comments_data}) do
+    IO.inspect("huhuuu")
     if !is_list(comments_data) or length(comments_data) < 1 do
       json(conn, %{error: "Invalid request data."})
 

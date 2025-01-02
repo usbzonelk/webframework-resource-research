@@ -10,6 +10,7 @@ defmodule App.Blog.Category do
   def changeset(category, attrs) do
     category
     |> cast(attrs, [:name, :id])
-    |> validate_required([:name, :id])
+    |> validate_required([:name])
+    |> unique_constraint(:name)
   end
 end

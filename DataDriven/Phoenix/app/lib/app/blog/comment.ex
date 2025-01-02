@@ -5,7 +5,7 @@ defmodule App.Blog.Comment do
   schema "comments" do
     field :authorName, :string
     field :content, :string
-    belongs_to :post, App.Blog.Post
+    belongs_to :post_id, App.Blog.Post
     field :lastUpdated, :naive_datetime
   end
 

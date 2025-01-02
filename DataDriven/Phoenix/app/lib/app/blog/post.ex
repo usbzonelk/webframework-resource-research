@@ -16,6 +16,7 @@ defmodule App.Blog.Post do
   def changeset(post, attrs) do
     post
     |> cast(attrs, [:title, :slug, :id, :content, :postStatus, :lastUpdated])
-    |> validate_required([:title, :slug, :id, :content, :postStatus, :lastUpdated])
+    |> validate_required([:title, :slug, :content, :postStatus, :lastUpdated])
+    |> unique_constraint(:slug)
   end
 end

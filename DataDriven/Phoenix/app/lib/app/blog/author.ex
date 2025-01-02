@@ -11,6 +11,7 @@ defmodule App.Blog.Author do
   def changeset(author, attrs) do
     author
     |> cast(attrs, [:name, :email, :id])
-    |> validate_required([:name, :email, :id])
+    |> validate_required([:name, :email])
+    |> unique_constraint(:email)
   end
 end

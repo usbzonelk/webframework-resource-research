@@ -1,8 +1,8 @@
 defmodule AppWeb.PostController do
   use AppWeb, :controller
-  alias App.Repo
-  alias App.Blog.{Post, Comment, Author, Category}
   import Ecto.Query
+  alias App.{Repo}
+  alias App.Blog.{Post, Comment}
 
   def create(conn, %{"post_data" => post_data}) do
     changeset = Post.changeset(%Post{}, post_data)
@@ -22,10 +22,11 @@ defmodule AppWeb.PostController do
     page = String.to_integer(page || "1")
     size = String.to_integer(size || "10")
 
-    posts =
-      Post
-      |> Repo.paginate(page: page, page_size: size)
-      |> Repo.preload([:authors, :categories])
+    query =
+      from p in Post,
+        preload: [:authors]
+
+    posts = Repo.paginate(query, page: page, page_size: size)
 
     if length(posts.entries) < 1 do
       json(conn, %{result: "No posts found."})

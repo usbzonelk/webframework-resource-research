@@ -15,7 +15,6 @@ defmodule AppWeb.Jason.Encoder do
   end
 
   defimpl Jason.Encoder, for: App.Blog.Comment do
-    @impl Jason.Encoder
     def encode_component(entity) do
       if(is_list(entity)) do
         Enum.map(entity, fn entity ->
@@ -29,6 +28,7 @@ defmodule AppWeb.Jason.Encoder do
       end
     end
 
+    @impl Jason.Encoder
     def encode(
           %App.Blog.Comment{
             id: id,
@@ -67,10 +67,11 @@ defmodule AppWeb.Jason.Encoder do
   end
 
   defimpl Jason.Encoder, for: App.Blog.Post do
-    @impl Jason.Encoder
     def encode_component(entity) do
       if(is_list(entity)) do
         Enum.map(entity, fn entity ->
+          IO.inspect(entity)
+
           case Jason.encode(entity) do
             {:ok, json} -> json
             {:error, _reason} -> nil
@@ -81,6 +82,7 @@ defmodule AppWeb.Jason.Encoder do
       end
     end
 
+    @impl Jason.Encoder
     def encode(
           %App.Blog.Post{
             id: id,
@@ -102,13 +104,9 @@ defmodule AppWeb.Jason.Encoder do
           "content" => content,
           "postStatus" => postStatus,
           "lastUpdated" => lastUpdated,
-          "authors" => encode_component(authors),
-          "categories" => encode_component(categories)
+          "authors" => authors
         }
-        |> Map.drop(
-          ["authors", "categories"]
-          |> Enum.filter(&is_nil(Map.get(%{authors: authors, categories: categories}, &1)))
-        ),
+        |> IO.inspect(),
         opts
       )
     end

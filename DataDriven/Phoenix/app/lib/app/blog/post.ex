@@ -9,7 +9,7 @@ defmodule App.Blog.Post do
     field :postStatus, :string
     field :lastUpdated, :naive_datetime
     many_to_many :authors, App.Blog.Author, join_through: "post_authors"
-    many_to_many :categories, App.Blog.Author, join_through: "post_categories"
+    many_to_many :categories, App.Blog.Category, join_through: "post_categories"
   end
 
   @doc false

@@ -103,7 +103,7 @@ class PostController extends Controller
     public function sortByDate()
     {
         try {
-            $posts = Post::orderBy('updated_at', 'desc')->get();
+            $posts = Post::orderBy('lastUpdated', 'desc')->get();
             if ($posts->isEmpty()) {
                 return response()->json(['result' => 'No posts found.'], 200);
             } else {
@@ -117,7 +117,7 @@ class PostController extends Controller
     public function popularPosts()
     {
         try {
-            $maxPosts = Comment::selectRaw('post_id, COUNT(*) as count')
+            $maxPosts = Comment::selectRaw('post, COUNT(*) as count')
                 ->groupBy('post')
                 ->orderBy('count', 'desc')
                 ->limit(10)

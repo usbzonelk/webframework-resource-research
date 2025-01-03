@@ -2,15 +2,23 @@ package controllers
 
 import (
 	"net/http"
+	"time"
 
 	"Gin/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
 
+type commentInput struct {
+	AuthorName  string `json:"authorName"`  // Author name, max length 50, required
+	Content     string `json:"content"`     // Content of the comment, required
+	LastUpdated string `json:"lastUpdated"` // Last updated time, defaults to current timestamp
+	Post        uint   `json:"post"`        // Related Post model
+}
+
 func (s *Server) CreateBulkCommentsHandler(c *gin.Context) {
 	var req struct {
-		CommentsData []models.Comment `json:"commentsData"`
+		CommentsData []commentInput `json:"commentsData"`
 	}
 
 	if err := c.BindJSON(&req); err != nil {
@@ -23,7 +31,26 @@ func (s *Server) CreateBulkCommentsHandler(c *gin.Context) {
 		return
 	}
 
-	if err := s.db.Create(&req.CommentsData).Error; err != nil {
+	var comments []models.Comment
+
+	for _, commentData := range req.CommentsData {
+		lastUpdated, err := time.Parse("2006-01-02", commentData.LastUpdated)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format for LastUpdated"})
+			return
+		}
+
+		comment := models.Comment{
+			AuthorName:  commentData.AuthorName,
+			Content:     commentData.Content,
+			LastUpdated: lastUpdated,
+			PostID:      commentData.Post,
+		}
+
+		comments = append(comments, comment)
+	}
+
+	if err := s.db.Create(&comments).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -62,7 +89,7 @@ func (s *Server) DeleteBulkCommentsHandler(c *gin.Context) {
 		postIDs = append(postIDs, post.ID)
 	}
 
-	if err := s.db.Where("post_id IN (?)", postIDs).Delete(&models.Comment{}).Error; err != nil {
+	if err := s.db.Unscoped().Where("post_id IN (?)", postIDs).Delete(&models.Comment{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

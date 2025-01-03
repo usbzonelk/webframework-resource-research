@@ -22,7 +22,7 @@ var (
 	database   = "DataDriven"
 	password   = "123456"
 	username   = "root"
-	port       = "61014"
+	port       = "61015"
 	host       = "localhost"
 	schema     = "public"
 	dbInstance *service

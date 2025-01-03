@@ -17,9 +17,17 @@ docker pull postgres
 docker run -d --rm \
   -e POSTGRES_PASSWORD=123456 \
   -e POSTGRES_USER=root \
-  -e POSTGRES_DB=DataDriven \
+  -e POSTGRES_DB=DataDrivenPhoenix \
   -p 61014:5432 \
   postgres
+
+docker run -d --rm \
+  -e POSTGRES_PASSWORD=123456 \
+  -e POSTGRES_USER=root \
+  -e POSTGRES_DB=DataDriven \
+  -p 61015:5432 \
+  postgres
+
 
 --------
 Erlang install:

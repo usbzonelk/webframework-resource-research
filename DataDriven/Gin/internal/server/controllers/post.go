@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,13 +13,25 @@ import (
 
 type PostInputDTO struct {
 	PostData struct {
-		Title       string    `json:"title"`
-		Slug        string    `json:"slug"`
-		Content     string    `json:"content"`
-		PostStatus  string    `json:"postStatus"`
-		LastUpdated time.Time `json:"lastUpdated"`
-		Authors     []uint    `json:"authors"`
-		Categories  []uint    `json:"categories"`
+		Title       string `json:"title"`
+		Slug        string `json:"slug"`
+		Content     string `json:"content"`
+		PostStatus  string `json:"postStatus"`
+		LastUpdated string `json:"lastUpdated"`
+		Authors     []uint `json:"authors"`
+		Categories  []uint `json:"categories"`
+	} `json:"postData"`
+}
+type PostUpdateDTO struct {
+	PostData struct {
+		ID          uint   `json:"id"`
+		Title       string `json:"title"`
+		Slug        string `json:"slug"`
+		Content     string `json:"content"`
+		PostStatus  string `json:"postStatus"`
+		LastUpdated string `json:"lastUpdated"`
+		Authors     []uint `json:"authors"`
+		Categories  []uint `json:"categories"`
 	} `json:"postData"`
 }
 
@@ -67,11 +78,17 @@ func (s *Server) CreatePostHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve categories: " + err.Error()})
 		return
 	}
+	lastUpdated, err := time.Parse("2006-01-02", postData.PostData.LastUpdated)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format for LastUpdated"})
+		return
+	}
+
 	postNew := models.Post{
 		Slug:        postData.PostData.Slug,
 		Title:       postData.PostData.Title,
 		Content:     postData.PostData.Content,
-		LastUpdated: postData.PostData.LastUpdated,
+		LastUpdated: lastUpdated,
 		PostStatus:  postData.PostData.PostStatus,
 		Categories:  categories,
 		Authors:     authors,
@@ -109,18 +126,38 @@ func (s *Server) BulkStatusUpdateHandler(c *gin.Context) {
 }
 
 func (s *Server) EditPostHandler(c *gin.Context) {
-	var postData models.Post
-	if err := c.BindJSON(&postData); err != nil {
+	var postData PostUpdateDTO
+	if err := c.ShouldBindBodyWith(&postData, binding.JSON); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if postData.ID == 0 {
+	if postData.PostData.ID == 0 {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "Invalid request."})
 		return
 	}
+	var lastUpdatedTime *time.Time
+	if postData.PostData.LastUpdated != "" {
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", postData.PostData.LastUpdated)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format for LastUpdated. Expected format: YYYY-MM-DD HH:MM:SS"})
+			return
+		}
+		lastUpdatedTime = &parsedTime
+	}
 
-	if err := s.db.Model(&models.Post{}).Where("id = ?", postData.ID).Updates(postData).Error; err != nil {
+	updateData := map[string]interface{}{
+		"title":       postData.PostData.Title,
+		"slug":        postData.PostData.Slug,
+		"content":     postData.PostData.Content,
+		"post_status": postData.PostData.PostStatus,
+	}
+
+	if lastUpdatedTime != nil {
+		updateData["last_updated"] = *lastUpdatedTime
+	}
+
+	if err := s.db.Model(&models.Post{}).Where("id = ?", postData.PostData.ID).Updates(updateData).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -172,7 +209,6 @@ func (s *Server) PopularPostsHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Print((maxPosts))
 	if len(maxPosts) < 1 {
 		c.JSON(http.StatusOK, gin.H{"result": "No posts found."})
 		return
@@ -184,9 +220,13 @@ func (s *Server) PopularPostsHandler(c *gin.Context) {
 	}
 
 	var posts []models.Post
-	if err := s.db.Where("id IN (?)", postIDs).Find(&posts).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	for _, postID := range postIDs {
+		var post models.Post
+		if err := s.db.Where("id = ?", postID).First(&post).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		posts = append(posts, post)
 	}
 
 	if len(posts) < 1 {

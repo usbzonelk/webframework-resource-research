@@ -3,16 +3,29 @@ const Post = require("../models/Post");
 
 exports.createBulk = async (req, res) => {
   const commentsData = Object.assign([], req.body.commentsData);
-  if (!Array.isArray(commentsData) && commentsData.length < 1) {
+  if (!Array.isArray(commentsData.commentsData) && commentsData.length < 1) {
     return res.status(422).json({ error: "Invalid request data." });
   }
   try {
-    const commentsCreation = await Comment.insertMany(commentsData);
-    if (Array.isArray(commentsCreation) && commentsCreation.length > 0) {
-      res.status(200).json({ success: true });
-    } else {
-      throw new Error("Error creating database entry!");
-    }
+    const commentSavingAsync = commentsData.map(async (commentInput) => {
+      const post = await Post.findOne({
+        id: commentInput.post,
+      }).exec();
+      if (!post) throw new Error("Post not found! " + commentInput.post);
+      commentInput.post = post._id;
+      commentInput.id = 5;
+      const savedComment = await Comment.create(commentInput);
+      if (!savedComment) {
+        throw new Error("Error creating database entry!");
+      }
+    });
+    Promise.all(commentSavingAsync)
+      .then(() => {
+        res.status(200).json({ success: true });
+      })
+      .catch((e) => {
+        res.status(500).json({ error: `${e}` });
+      });
   } catch (e) {
     res.status(500).json({ error: `${e}` });
   }

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Author = require("./Author");
 const Category = require("./Category");
+const Counter = require("./Counter");
 
 const postSchema = new mongoose.Schema({
   title: {
@@ -53,4 +54,22 @@ const postSchema = new mongoose.Schema({
   },
 });
 postSchema.plugin(require("mongoose-autopopulate"));
+postSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    try {
+      const counter = await Counter.findOneAndUpdate(
+        { name: "postId" },
+        { $inc: { value: 1 } },
+        { new: true, upsert: true }
+      );
+
+      this.id = counter.value;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    next();
+  }
+});
 module.exports = mongoose.model("Post", postSchema);

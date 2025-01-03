@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Counter = require("./Counter");
 
 const categorySchema = new mongoose.Schema({
   name: {
@@ -12,5 +13,23 @@ const categorySchema = new mongoose.Schema({
     index: true,
     unique: true,
   },
+});
+categorySchema.pre("save", async function (next) {
+  if (this.isNew) {
+    try {
+      const counter = await Counter.findOneAndUpdate(
+        { name: "postId" },
+        { $inc: { value: 1 } },
+        { new: true, upsert: true }
+      );
+
+      this.id = counter.value;
+      next();
+    } catch (err) {
+      next(err);
+    }
+  } else {
+    next();
+  }
 });
 module.exports = mongoose.model("Category", categorySchema);

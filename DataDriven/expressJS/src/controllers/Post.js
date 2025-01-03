@@ -4,8 +4,8 @@ const Comment = require("../models/Comment");
 exports.create = async (req, res) => {
   const postData = Object.assign({}, req.body.postData);
   try {
-    const postCreation = await Post.create(postData).then((postDataTemp) =>
-      postDataTemp.toObject()
+    const postCreation = await Post.create({ ...postData, id: 0 }).then(
+      (postDataTemp) => postDataTemp.toObject()
     );
     if (Object.hasOwn(postCreation, "_id") && postCreation._id) {
       res.status(200).json({ success: true });
@@ -14,6 +14,7 @@ exports.create = async (req, res) => {
     }
   } catch (e) {
     res.status(500).json({ error: `${e}` });
+    console.log(e);
   }
 };
 
@@ -43,7 +44,7 @@ exports.bulkStatusUpdate = async (req, res) => {
     return res.status(422).json({ error: "Invalid request data." });
   try {
     const updated = await Post.updateMany(
-      { _id: { $in: postIDs } },
+      { id: { $in: postIDs } },
       { $set: { postStatus: newStatus } }
     );
 
@@ -59,12 +60,14 @@ exports.bulkStatusUpdate = async (req, res) => {
 };
 
 exports.edit = async (req, res) => {
-  const postData = Object.assign([], req.body.postData);
+  const postData = Object.assign({}, req.body.postData);
   if (Object.keys(postData).length < 1 || !Object.hasOwn(postData, "id"))
     return res.status(422).json({ error: "Invalid request." });
   try {
-    const updated = await Post.findByIdAndUpdate(id, postData);
-    if (updated.ok) {
+    const updated = await Post.findOneAndUpdate({ id: postData.id }, postData, {
+      new: true,
+    });
+    if (updated) {
       res.status(200).json({ success: true });
     } else {
       throw new Error("Error updating database entry!");

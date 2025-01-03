@@ -1,0 +1,180 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "yyy",
+    "collectionId": "35face10-f375-46d2-94d8-6bad18f726a1",
+    "dateExported": "2025-01-03T06:19:32.460Z",
+    "version": "1.2",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "4de9e1ba-903e-4900-b6d5-356b19a5c797",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://localhost:55021/posts/popular",
+            "url": "http://localhost:55021/posts/popular",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2025-01-03T05:45:53.591Z",
+            "modified": "2025-01-03T05:45:53.591Z",
+            "headers": []
+        },
+        {
+            "_id": "2122d7c9-ee6e-49b5-8ff1-838bb4832801",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://127.0.0.1:55021/posts/?page=1&size=10",
+            "url": "http://127.0.0.1:55021/posts/?page=1&size=10",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2025-01-03T05:46:02.626Z",
+            "modified": "2025-01-03T05:46:02.626Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "page",
+                    "value": "1",
+                    "isPath": false
+                },
+                {
+                    "name": "size",
+                    "value": "10",
+                    "isPath": false
+                }
+            ]
+        },
+        {
+            "_id": "eb6c81f1-869d-4d00-b101-5efc38d0d6c4",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://localhost:55021/posts/sort-by-date",
+            "url": "http://localhost:55021/posts/sort-by-date",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2025-01-03T05:47:03.452Z",
+            "modified": "2025-01-03T05:47:03.452Z",
+            "headers": []
+        },
+        {
+            "_id": "35acf134-737d-4339-94a7-9d0c72da8914",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "authors/get-posts",
+            "url": "http://127.0.0.1:55021/authors/get-posts",
+            "method": "POST",
+            "sortNum": 50000,
+            "created": "2025-01-03T05:50:16.929Z",
+            "modified": "2025-01-03T05:50:16.929Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"emails\": [\n    \"john.doe@example.com\",\n    \"jane.smith@example.com\"\n  ]\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "90e51fde-239e-4f8e-96dd-c77f35a3b127",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://127.0.0.1:55021/posts/create",
+            "url": "http://127.0.0.1:55021/posts/create",
+            "method": "POST",
+            "sortNum": 60000,
+            "created": "2025-01-03T05:53:59.583Z",
+            "modified": "2025-01-03T05:53:59.583Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"postData\": {\n    \"title\": \"My First Post via api\",\n    \"slug\": \"inserted-via-api\",\n    \"content\": \"This is the content of my first post via api.\",\n    \"postStatus\": \"Published\",\n    \"lastUpdated\": \"2025-04-30\"\n  }\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "8439fc7a-ebb6-43c5-b5b4-dd59f6ab69d0",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://localhost:55021/comments/create-bulk",
+            "url": "http://localhost:55021/comments/create-bulk",
+            "method": "POST",
+            "sortNum": 80000,
+            "created": "2025-01-03T06:05:38.560Z",
+            "modified": "2025-01-03T06:05:38.560Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\r\n  \"commentsData\": [\r\n    {\r\n      \"authorName\": \"Alice Smith\",\r\n      \"content\": \"This is a great post about programming in Elixir. Highly recommended!\",\r\n      \"post\": 1,\r\n      \"lastUpdated\": \"2025-01-01\"\r\n    },\r\n    {\r\n      \"authorName\": \"Bob Johnson\",\r\n      \"content\": \"This post explains how to set up a PostgreSQL database with Phoenix.\",\r\n      \"post\": 2,\r\n      \"lastUpdated\": \"2025-01-02\"\r\n    },\r\n    {\r\n      \"authorName\": \"Carol Lee\",\r\n      \"content\": \"Great tips on debugging Elixir code. Definitely a must-read for beginners.\",\r\n      \"post\": 1,\r\n      \"lastUpdated\": \"2025-01-02\"\r\n    },\r\n    {\r\n      \"authorName\": \"David King\",\r\n      \"content\": \"Exploring Phoenix LiveView for real-time apps. It's a game-changer!\",\r\n      \"post\": 1,\r\n      \"lastUpdated\": \"2025-01-03\"\r\n    },\r\n    {\r\n      \"authorName\": \"Eva Green\",\r\n      \"content\": \"Understanding how to optimize Ecto queries for better performance.\",\r\n      \"post\": 1,\r\n      \"lastUpdated\": \"2025-01-04\"\r\n    },\r\n    {\r\n      \"authorName\": \"Frank Adams\",\r\n      \"content\": \"I loved this article! It really helped me understand concurrency in Elixir.\",\r\n      \"post\": 1,\r\n      \"lastUpdated\": \"2025-01-05\"\r\n    },\r\n    {\r\n      \"authorName\": \"Grace Brown\",\r\n      \"content\": \"Phoenix channels are so powerful for building real-time applications. Great read!\",\r\n      \"post\": 3,\r\n      \"lastUpdated\": \"2025-01-06\"\r\n    },\r\n    {\r\n      \"authorName\": \"Henry Clark\",\r\n      \"content\": \"Thanks for the explanation of Ecto's changesets. Now I get it!\",\r\n      \"post\": 3,\r\n      \"lastUpdated\": \"2025-01-07\"\r\n    },\r\n    {\r\n      \"authorName\": \"Ivy Hall\",\r\n      \"content\": \"I’m starting to experiment with Elixir for the first time. This post is super helpful!\",\r\n      \"post\": 3,\r\n      \"lastUpdated\": \"2025-01-08\"\r\n    },\r\n    {\r\n      \"authorName\": \"Jack Lee\",\r\n      \"content\": \"I didn't know about this feature in Phoenix LiveView. Thanks for sharing!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-09\"\r\n    },\r\n    {\r\n      \"authorName\": \"Kathy Martinez\",\r\n      \"content\": \"The performance tuning tips for Elixir in this article are fantastic. Must-read for pros!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-10\"\r\n    },\r\n    {\r\n      \"authorName\": \"Leo Wilson\",\r\n      \"content\": \"I followed your PostgreSQL setup guide. It worked perfectly for my project. Thanks!\",\r\n      \"post\": 2,\r\n      \"lastUpdated\": \"2025-01-11\"\r\n    },\r\n    {\r\n      \"authorName\": \"Mia White\",\r\n      \"content\": \"The explanations in this post really helped me improve my debugging workflow in Elixir.\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-12\"\r\n    },\r\n    {\r\n      \"authorName\": \"Nathan Hall\",\r\n      \"content\": \"I had trouble understanding LiveView, but your post cleared everything up. Much appreciated!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-13\"\r\n    },\r\n    {\r\n      \"authorName\": \"Olivia Scott\",\r\n      \"content\": \"Great guide on building REST APIs with Phoenix. I learned a lot from it!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-14\"\r\n    },\r\n    {\r\n      \"authorName\": \"Paul Walker\",\r\n      \"content\": \"I started using Elixir because of posts like this one. Keep them coming!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-15\"\r\n    },\r\n    {\r\n      \"authorName\": \"Quincy Young\",\r\n      \"content\": \"The section on Ecto migrations was particularly useful. I had no idea about this feature.\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-16\"\r\n    },\r\n    {\r\n      \"authorName\": \"Riley Green\",\r\n      \"content\": \"Just implemented your tips on using Phoenix LiveView for live chat. It works flawlessly!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-17\"\r\n    },\r\n    {\r\n      \"authorName\": \"Sophie Black\",\r\n      \"content\": \"I didn't realize how powerful the Phoenix Framework was until reading this article.\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-18\"\r\n    },\r\n    {\r\n      \"authorName\": \"Terry Harris\",\r\n      \"content\": \"Really enjoyed this post. The PostgreSQL tips were exactly what I was looking for.\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-19\"\r\n    },\r\n    {\r\n      \"authorName\": \"Uma Clark\",\r\n      \"content\": \"Thanks for breaking down the basics of Elixir so clearly. This is a great starting point!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-20\"\r\n    },\r\n    {\r\n      \"authorName\": \"Victor Taylor\",\r\n      \"content\": \"I found your performance tips very valuable. Elixir and Phoenix are now my go-to tools!\",\r\n      \"post\": 4,\r\n      \"lastUpdated\": \"2025-01-21\"\r\n    },\r\n    {\r\n      \"authorName\": \"Wendy Adams\",\r\n      \"content\": \"The section about PostgreSQL indexing was a game changer for my project. Thank you!\",\r\n      \"post\": 5,\r\n      \"lastUpdated\": \"2025-01-22\"\r\n    },\r\n    {\r\n      \"authorName\": \"Xander Mitchell\",\r\n      \"content\": \"Your guide on Phoenix LiveView was one of the best I’ve read. Can’t wait for more posts!\",\r\n      \"post\": 3,\r\n      \"lastUpdated\": \"2025-01-23\"\r\n    }\r\n  ]\r\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "75ab45ed-1fe1-47d0-bbc7-1a8fa862dcd4",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://localhost:55021/comments/delete-bulk",
+            "url": "http://localhost:55021/comments/delete-bulk",
+            "method": "POST",
+            "sortNum": 90000,
+            "created": "2025-01-03T06:09:35.461Z",
+            "modified": "2025-01-03T06:09:35.461Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"postIDs\": [\n    3,\n    4\n  ]\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "493b584e-acbb-4334-84a5-2640ebc92bd4",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://localhost:55021/posts/status-update",
+            "url": "http://localhost:55021/posts/status-update",
+            "method": "PUT",
+            "sortNum": 100000,
+            "created": "2025-01-03T06:13:01.032Z",
+            "modified": "2025-01-03T06:13:01.032Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"postIDs\": [\n    2,\n    4\n  ],\n  \"newStatus\": \"Published\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "e60c5696-c40e-4e75-b052-9232f56bc3c2",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://127.0.0.1:55021/posts/edit",
+            "url": "http://127.0.0.1:55021/posts/edit",
+            "method": "PUT",
+            "sortNum": 110000,
+            "created": "2025-01-03T06:15:42.179Z",
+            "modified": "2025-01-03T06:15:42.179Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"postData\" :{\n    \"id\": 1,\n      \"title\": \"EditedBitches\",\n      \"slug\": \"my-first-post-editedNow\",\n      \"content\": \"This is the content of my first post. I tampered via api\",\n      \"postStatus\": \"Draft\",\n      \"lastUpdated\": \"2025-01-04 05:23:59\"\n  }\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "1789c736-f8e1-40de-9f67-19dfba3a25a7",
+            "colId": "35face10-f375-46d2-94d8-6bad18f726a1",
+            "containerId": "",
+            "name": "http://localhost:55021/posts/search?search=eli",
+            "url": "http://localhost:55021/posts/search?search=e",
+            "method": "GET",
+            "sortNum": 120000,
+            "created": "2025-01-03T06:18:59.721Z",
+            "modified": "2025-01-03T06:18:59.721Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "search",
+                    "value": "e",
+                    "isPath": false
+                }
+            ]
+        }
+    ],
+    "ref": "pqUCDUQXEWmmv3ZZTNGqOVJzuB-_e-5QODUD0OCD8o4Iex7bkuvg1cVo995yRViVpYbhJ9RclVN9Y1NEclqljA"
+}

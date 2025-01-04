@@ -24,6 +24,10 @@ defmodule AppWeb.AuthorController do
           from p in Post,
             join: pa in "post_authors",
             on: pa.post_id == p.id,
+            join: a in Author,
+            on: a.id == pa.author_id,
+            where: pa.author_id in ^author_ids,
+            preload: [authors: a],
             where: pa.author_id in ^author_ids,
             select: %{post: p}
         )

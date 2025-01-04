@@ -10,6 +10,7 @@ defmodule App.Blog.Post do
     field :lastUpdated, :naive_datetime
     many_to_many :authors, App.Blog.Author, join_through: "post_authors"
     many_to_many :categories, App.Blog.Category, join_through: "post_categories"
+    has_many :comments, App.Blog.Comment
   end
 
   @doc false

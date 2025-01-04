@@ -15,21 +15,13 @@ defmodule AppWeb.Jason.Encoder do
   end
 
   defimpl Jason.Encoder, for: App.Blog.Comment do
-    def encode_component(entity) do
-      if(is_list(entity)) do
-        entity
-      else
-        nil
-      end
-    end
-
     @impl Jason.Encoder
     def encode(
           %App.Blog.Comment{
             id: id,
             authorName: authorName,
             content: content,
-            post_id: post,
+            post: post,
             lastUpdated: lastUpdated
           },
           opts
@@ -39,7 +31,7 @@ defmodule AppWeb.Jason.Encoder do
           "id" => id,
           "authorName" => authorName,
           "content" => content,
-          "post" => encode_component(post),
+          "post" => post,
           "lastUpdated" => lastUpdated
         },
         opts

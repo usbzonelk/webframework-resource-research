@@ -4,7 +4,21 @@ defmodule AppWeb.PostController do
   alias App.{Repo}
   alias App.Blog.{Post, Comment, Author}
 
-  def create(conn, %{"post_data" => post_data}) do
+  def create(conn, %{"postData" => post_data}) do
+    last_updated_str = Map.get(post_data, "lastUpdated", "")
+
+    last_updated =
+      if last_updated_str != "" do
+        case NaiveDateTime.from_iso8601("#{last_updated_str} 00:00:00") do
+          {:ok, naive_datetime} -> naive_datetime
+          _error -> nil
+        end
+      else
+        nil
+      end
+
+    post_data = Map.put(post_data, "lastUpdated", last_updated)
+
     changeset = Post.changeset(%Post{}, post_data)
 
     authors_ids = Map.get(post_data, "authors", [])
@@ -45,7 +59,7 @@ defmodule AppWeb.PostController do
     end
   end
 
-  def bulk_status_update(conn, %{"post_ids" => post_ids, "new_status" => new_status}) do
+  def bulk_status_update(conn, %{"postIDs" => post_ids, "newStatus" => new_status}) do
     if is_nil(new_status) or not is_list(post_ids) or length(post_ids) < 1 do
       conn
       |> put_status(:unprocessable_entity)
@@ -53,7 +67,7 @@ defmodule AppWeb.PostController do
     else
       {count, _} =
         from(p in Post, where: p.id in ^post_ids)
-        |> Repo.update_all(set: [post_status: new_status])
+        |> Repo.update_all(set: [postStatus: new_status])
 
       if count > 0 do
         json(conn, %{success: true})
@@ -65,7 +79,7 @@ defmodule AppWeb.PostController do
     end
   end
 
-  def edit(conn, %{"post_data" => post_data}) do
+  def edit(conn, %{"postData" => post_data}) do
     id = post_data["id"]
 
     if is_nil(id) or map_size(post_data) < 1 do
@@ -149,7 +163,10 @@ defmodule AppWeb.PostController do
     post_ids = Enum.map(max_posts, & &1.post)
 
     posts =
-      from(p in Post, where: p.id in ^post_ids)
+      from(p in Post,
+        where: p.id in ^post_ids,
+        order_by: fragment("array_position(?, ?)", ^post_ids, p.id)
+      )
       |> Repo.all()
       |> Repo.preload([:authors, :categories])
 

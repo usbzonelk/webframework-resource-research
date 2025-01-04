@@ -47,3 +47,8 @@ mix phx.new myApp --no-html --no-assets --no-live
 
 https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
  rm -rf /usr/local/go && tar -C /usr/local -xzf go1.23.4.linux-amd64.tar.gz
+
+-----------------
+docker run -d   --name mongodb   -e MONGO_INITDB_ROOT_USERNAME=admin   -e MONGO_INITDB_ROOT_PASSWORD=adminpassword   -p 61012:27017   mongo
+
+MONGOURL=mongodb://admin:adminpassword@localhost:61012/collection?authSource=admin&retryWrites=true&w=majority

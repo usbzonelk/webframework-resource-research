@@ -25,7 +25,7 @@ authorSchema.pre("save", async function (next) {
   if (this.isNew) {
     try {
       const counter = await Counter.findOneAndUpdate(
-        { name: "postId" },
+        { name: "authorID" },
         { $inc: { value: 1 } },
         { new: true, upsert: true }
       );

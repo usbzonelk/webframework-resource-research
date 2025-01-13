@@ -70,7 +70,7 @@ wss.on("connection", (ws) => {
 
         case "time_now": {
           const time = new Date().toISOString();
-          broadcastToAll({ type: "time_now", time });
+          ws.send(JSON.stringify({ type: "time_now", time }));
           console.log(`Time broadcasted: ${time}`);
           break;
         }

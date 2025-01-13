@@ -33,6 +33,7 @@ defmodule PhoenixElixir.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.7.18"},
+      {:phoenix_pubsub, "~> 2.1.3"},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},

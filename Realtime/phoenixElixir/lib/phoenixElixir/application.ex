@@ -11,8 +11,7 @@ defmodule PhoenixElixir.Application do
       PhoenixElixirWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:phoenixElixir, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhoenixElixir.PubSub},
-      # Start the Finch HTTP client for sending emails
-      {Finch, name: PhoenixElixir.Finch},
+      PhoenixElixirWeb.Presence,
       # Start a worker by calling: PhoenixElixir.Worker.start_link(arg)
       # {PhoenixElixir.Worker, arg},
       # Start to serve requests, typically the last entry

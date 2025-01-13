@@ -1,0 +1,34 @@
+{
+  "joinChannels": {
+    "topic": "room:lobby",
+    "event": "phx_join",
+    "payload": {
+      "user_id": "444"
+    },
+    "ref": 0
+  },
+  "sendMsg": {
+    "topic": "room:lobby",
+    "event": "new_msg",
+    "payload": {
+      "user_id": "444",
+      "body": "huhu",
+      "username": "ji"
+    },
+    "ref": 0
+  },
+  "timeNow": {
+    "topic": "room:lobby",
+    "event": "time_now",
+    "payload": {},
+    "ref": 0
+  },
+  "typing": {
+    "topic": "room:lobby",
+    "event": "typing",
+    "payload": {
+      "user_id": "444a"
+    },
+    "ref": 0
+  }
+}

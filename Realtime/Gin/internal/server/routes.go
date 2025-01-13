@@ -1,65 +1,129 @@
 package server
 
 import (
-	"net/http"
-
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-
-	"github.com/coder/websocket"
+	"github.com/gorilla/websocket"
 )
+
+var rooms = make(map[string][]*websocket.Conn)
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+type Message struct {
+	Event   string `json:"event"`
+	Topic   string `json:"topic,omitempty"`
+	Payload struct {
+		UserID string `json:"user_id"`
+		Body   string `json:"body,omitempty"`
+	} `json:"payload"`
+}
+
+func broadcastToRoom(room string, msg interface{}) {
+	if clients, ok := rooms[room]; ok {
+		for _, client := range clients {
+			err := client.WriteJSON(msg)
+			if err != nil {
+				log.Println("Error broadcasting message:", err)
+			}
+		}
+	}
+}
 
 func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"}, // Add your frontend URL
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
-		AllowCredentials: true, // Enable cookies/auth
-	}))
-
-	r.GET("/", s.HelloWorldHandler)
-
-	r.GET("/websocket", s.websocketHandler)
-
+	r.GET("/webapp/websocket", s.handleConnection)
 	return r
 }
 
-func (s *Server) HelloWorldHandler(c *gin.Context) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	c.JSON(http.StatusOK, resp)
-}
-
-func (s *Server) websocketHandler(c *gin.Context) {
-	w := c.Writer
-	r := c.Request
-	socket, err := websocket.Accept(w, r, nil)
-
+func (s *Server) handleConnection(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("could not open websocket: %v", err)
-		_, _ = w.Write([]byte("could not open websocket"))
-		w.WriteHeader(http.StatusInternalServerError)
+		log.Println("Upgrade error:", err)
 		return
 	}
+	defer conn.Close()
 
-	defer socket.Close(websocket.StatusGoingAway, "server closing websocket")
+	var currentRoom string
+	userID := fmt.Sprintf("user_%d", time.Now().UnixNano())
 
-	ctx := r.Context()
-	socketCtx := socket.CloseRead(ctx)
+	log.Printf("New connection: %s", userID)
 
 	for {
-		payload := fmt.Sprintf("server timestamp: %d", time.Now().UnixNano())
-		err := socket.Write(socketCtx, websocket.MessageText, []byte(payload))
+		_, msg, err := conn.ReadMessage()
 		if err != nil {
+			log.Println("Read error:", err)
 			break
 		}
-		time.Sleep(time.Second * 2)
+
+		var data Message
+		if err := json.Unmarshal(msg, &data); err != nil {
+			log.Println("Error parsing message:", err)
+			continue
+		}
+
+		switch data.Event {
+		case "join_room":
+			if _, exists := rooms[data.Topic]; !exists {
+				rooms[data.Topic] = []*websocket.Conn{}
+			}
+			rooms[data.Topic] = append(rooms[data.Topic], conn)
+			currentRoom = data.Topic
+
+			broadcastToRoom(data.Topic, map[string]interface{}{
+				"type":  "presence_state",
+				"users": []map[string]string{{"user_id": data.Payload.UserID}},
+			})
+			log.Printf("%s joined room: %s", data.Payload.UserID, data.Topic)
+
+		case "new_msg":
+			if currentRoom != "" {
+				broadcastToRoom(currentRoom, map[string]interface{}{
+					"type":    "new_msg",
+					"body":    data.Payload.Body,
+					"user_id": data.Payload.UserID,
+				})
+				log.Printf("%s sent a message: %s", data.Payload.UserID, data.Payload.Body)
+			}
+
+		case "typing":
+			if currentRoom != "" {
+				broadcastToRoom(currentRoom, map[string]interface{}{
+					"type":    "typing",
+					"user_id": data.Payload.UserID,
+				})
+				log.Printf("%s is typing...", data.Payload.UserID)
+			}
+
+		case "time_now":
+			timeNow := time.Now().Format(time.RFC3339)
+			conn.WriteJSON(map[string]interface{}{
+				"type": "time_now",
+				"time": timeNow,
+			})
+			log.Printf("Time broadcasted: %s", timeNow)
+
+		default:
+			log.Println("Unknown message type:", data.Event)
+		}
+	}
+
+	log.Printf("User disconnected: %s", userID)
+	if currentRoom != "" {
+		clients := rooms[currentRoom]
+		for i, client := range clients {
+			if client == conn {
+				rooms[currentRoom] = append(clients[:i], clients[i+1:]...)
+				break
+			}
+		}
 	}
 }

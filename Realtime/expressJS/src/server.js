@@ -7,7 +7,7 @@ const app = express();
 const port = 54301;
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server, path: "/webapp" });
+const wss = new WebSocket.Server({ server, path: "/webapp/websocket" });
 
 const rooms = {};
 
@@ -21,62 +21,49 @@ wss.on("connection", (ws) => {
     try {
       const data = JSON.parse(message);
 
-      switch (data.type) {
+      switch (data.event) {
         case "join_room": {
-          const { room, user_id, username } = data;
-          if (!rooms[room]) {
-            rooms[room] = [];
+          const { topic, payload } = data;
+          const user_id = payload.user_id;
+          if (!rooms[topic]) {
+            rooms[topic] = [];
           }
-          rooms[room].push(ws);
-          currentRoom = room;
+          rooms[topic].push(ws);
+          currentRoom = topic;
 
-          broadcastToRoom(room, {
+          broadcastToRoom(topic, {
             type: "presence_state",
-            users: [{ user_id, username }],
+            users: [{ user_id }],
           });
 
-          console.log(`${username} joined room: ${room}`);
+          console.log(`${user_id} joined room: ${topic}`);
           break;
         }
 
         case "new_msg": {
-          const { body, user_id, username } = data;
-
+          const { payload } = data;
+          const user_id = payload.user_id;
+          const body = payload.body;
           if (currentRoom) {
             broadcastToRoom(currentRoom, {
               type: "new_msg",
               body,
               user_id,
-              username,
             });
-            console.log(`${username} sent a message: ${body}`);
-          }
-          break;
-        }
-
-        case "presence_state": {
-          const { users } = data;
-
-          if (currentRoom) {
-            broadcastToRoom(currentRoom, {
-              type: "presence_state",
-              users,
-            });
-            console.log("Presence updated");
+            console.log(`${user_id} sent a message: ${body}`);
           }
           break;
         }
 
         case "typing": {
-          const { user_id, username } = data;
-
+          const { payload } = data;
+          const user_id = payload.user_id;
           if (currentRoom) {
             broadcastToRoom(currentRoom, {
               type: "typing",
               user_id,
-              username,
             });
-            console.log(`${username} is typing...`);
+            console.log(`${user_id} is typing...`);
           }
           break;
         }

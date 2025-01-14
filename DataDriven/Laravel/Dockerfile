@@ -27,11 +27,11 @@ RUN apt-get install -y \
     php${PHP_VERSION}-common \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-zip \
-    php${PHP_VERSION}-pdo \
-    php${PHP_VERSION}-pdo_mysql \
-    php${PHP_VERSION}-opcache \
-    php${PHP_VERSION}-mbstring \
-    php${PHP_VERSION}-curl \
+    php-pdo \
+    php-pdo_mysql \
+    php-opcache \
+    php-mbstring \
+    php-curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

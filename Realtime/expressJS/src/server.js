@@ -4,7 +4,7 @@ const WebSocket = require("ws");
 const _ = require("lodash");
 
 const app = express();
-const port = 54301;
+const port = 55002;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server, path: "/webapp/websocket" });

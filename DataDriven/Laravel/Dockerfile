@@ -1,6 +1,7 @@
-FROM debian:12.8
+FROM ubuntu:jammy
 
-ENV PHP_VERSION=8.4
+ENV PHP_VERSION=8.2
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -27,28 +28,59 @@ RUN apt-get install -y \
     php${PHP_VERSION}-common \
     php${PHP_VERSION}-gd \
     php${PHP_VERSION}-zip \
-    php-pdo \
-    php-pdo_mysql \
-    php-opcache \
-    php-mbstring \
-    php-curl \
+    php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-pdo \
+    php${PHP_VERSION}-opcache \
+    php${PHP_VERSION}-mbstring \
+    php${PHP_VERSION}-bcmath \
+    php${PHP_VERSION}-xml \
+    php${PHP_VERSION}-curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN sed -i "s/listen = \/var\/run\/php\/php${PHP_VERSION}-fpm.sock/listen = 127.0.0.1:55021/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+# Install nginx
+RUN apt install -y nginx
+RUN echo "\
+    server {\n\
+        listen 55021;\n\
+        listen [::]:55021;\n\
+        root /var/www/html/public;\n\
+        add_header X-Content-Type-Options \"nosniff\";\n\
+        index index.php;\n\
+        charset utf-8;\n\
+        location / {\n\
+            try_files \$uri \$uri/ /index.php?\$query_string;\n\
+        }\n\
+        location = /favicon.ico { access_log off; log_not_found off; }\n\
+        location = /robots.txt  { access_log off; log_not_found off; }\n\
+        error_page 404 /index.php;\n\
+        location ~ \.php$ {\n\
+            fastcgi_pass unix:/run/php/php8.2-fpm.sock;\n\
+            fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;\n\
+            include fastcgi_params;\n\
+        }\n\
+        location ~ /\.(?!well-known).* {\n\
+            deny all;\n\
+        }\n\
+    }\n" > /etc/nginx/sites-available/default
 
-COPY ./nginx/default.conf /etc/nginx/sites-available/default
+RUN echo "\
+    #!/bin/sh\n\
+    echo \"Starting services...\"\n\
+    service php8.2-fpm start\n\
+    nginx -g \"daemon off;\" &\n\
+    echo \"Ready.\"\n\
+    tail -s 1 /var/log/nginx/*.log -f\n\
+    " > /start.sh
 
-WORKDIR /var/www
+COPY . /var/www/html
+WORKDIR /var/www/html
 
-COPY . .
+RUN chown -R www-data:www-data /var/www/html
 
-RUN composer install --no-dev --optimize-autoloader
-
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+RUN composer install
 
 EXPOSE 55021
 
-CMD service nginx start && php-fpm
+CMD ["sh", "/start.sh"]

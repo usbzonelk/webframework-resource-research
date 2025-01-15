@@ -1,7 +1,8 @@
-FROM debian:12.8 as builder
+FROM ubuntu:jammy as builder
 
 ENV GO_VERSION=1.23.4
 ENV GIN_VERSION=1.10.0
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -27,7 +28,7 @@ RUN go mod tidy
 
 RUN go build -o main cmd/api/main.go
 
-FROM debian:12.8
+FROM ubuntu:jammy
 
 RUN apt-get update && apt-get install -y \
     ca-certificates \

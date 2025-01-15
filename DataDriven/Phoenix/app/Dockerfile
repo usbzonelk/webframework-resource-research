@@ -1,26 +1,30 @@
-FROM debian:12.8
+FROM ubuntu:jammy
 
-ENV ELIXIR_VERSION 1.18.1
-ENV ERLANG_VERSION 27.0.3
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
+    wget \
     curl \
+    gnupg \
+    git \
+    apt-transport-https \
     ca-certificates \
+    software-properties-common \
+    lsb-release \
+    python3-launchpadlib \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sSL https://packages.erlang.org/erlang-solutions_2.0_all.deb -o /tmp/erlang.deb \
-    && dpkg -i /tmp/erlang.deb \
-    && apt-get update \
-    && apt-get install -y esl-erlang=${ERLANG_VERSION} \
-    && rm -rf /tmp/erlang.deb \
-    && rm -rf /var/lib/apt/lists/*
+RUN add-apt-repository ppa:rabbitmq/rabbitmq-erlang
 
-RUN curl -sSL https://github.com/elixir-lang/elixir/releases/download/v${ELIXIR_VERSION}/elixir-${ELIXIR_VERSION}-otp-${ERLANG_VERSION}.zip -o /tmp/elixir.zip \
-    && unzip /tmp/elixir.zip -d /opt/ \
-    && rm /tmp/elixir.zip \
-    && ln -s /opt/elixir-${ELIXIR_VERSION}/bin/elixir /usr/local/bin/elixir \
-    && ln -s /opt/elixir-${ELIXIR_VERSION}/bin/mix /usr/local/bin/mix \
-    && ln -s /opt/elixir-${ELIXIR_VERSION}/bin/iex /usr/local/bin/iex
+RUN apt-get update --allow-unauthenticated
+
+RUN apt-get install -y \
+    erlang=1:26.2.5.3-1rmq1ppa1~ubuntu22.04.1 \
+    elixir=1.17.3-1rmq1ppa1~ubuntu22.04.1
+
+RUN mix local.hex --force
+
+RUN mix local.rebar --force
 
 WORKDIR /app
 

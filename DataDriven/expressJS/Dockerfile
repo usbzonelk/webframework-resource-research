@@ -1,4 +1,6 @@
-FROM debian:12.8
+FROM ubuntu:jammy
+
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y \
     curl \

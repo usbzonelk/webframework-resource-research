@@ -7,19 +7,16 @@ RUN apt-get update && apt-get install -y \
     curl \
     gnupg2 \
     ca-certificates \
-    lsb-release \
-    apt-transport-https \
     unzip \
-    nginx \
     git \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
     libzip-dev \
     zip \
+    nginx \
+    software-properties-common \
+    python3-launchpadlib \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://packages.sury.org/php/README.txt | bash - \
+RUN add-apt-repository -y ppa:ondrej/php  \
     && apt-get update
 
 RUN apt-get install -y \
@@ -40,7 +37,6 @@ RUN apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install nginx
-RUN apt install -y nginx
 RUN echo "\
     server {\n\
         listen 55021;\n\

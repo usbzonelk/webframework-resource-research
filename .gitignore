@@ -322,7 +322,6 @@ yarn-error.log*
 package-lock.json
 
 # ASP.NET Core
-bin/
 obj/
 **/*.user
 **/*.vspscc
@@ -348,7 +347,6 @@ config/*.secret.exs
 *.beam
 
 # Go (using stdlib)
-bin/
 *.exe
 *.exe~
 *.dll

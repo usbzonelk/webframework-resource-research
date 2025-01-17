@@ -1,0 +1,43 @@
+FROM ubuntu:jammy as builder
+
+ENV GO_VERSION=1.23.4
+ENV GIN_VERSION=1.10.0
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz -o /tmp/go${GO_VERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf /tmp/go${GO_VERSION}.linux-amd64.tar.gz \
+    && rm /tmp/go${GO_VERSION}.linux-amd64.tar.gz
+
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+WORKDIR /app
+
+COPY . .
+
+RUN go mod tidy
+
+RUN go build -o main cmd/api/main.go
+
+FROM ubuntu:jammy
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /app/main /app/
+
+EXPOSE 55033
+
+CMD ["./main"]

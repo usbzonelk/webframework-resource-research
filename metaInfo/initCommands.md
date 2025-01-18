@@ -10,6 +10,7 @@ docker run --detach \
   mariadb:latest
 php artisan migrate
 composer run dev
+sudo apt-get install php8.2-sqlite3
 
 -------
 docker pull postgres

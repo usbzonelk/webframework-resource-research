@@ -138,6 +138,7 @@ class PostController extends Controller
 
     public function newPosts(Request $request)
     {
+        set_time_limit(0);
         $commentsData = $request->input('cats', []);
         if (!is_array($commentsData) || count($commentsData) < 1) {
             return response()->json(['error' => 'Invalid request data.'], 422);
@@ -147,6 +148,8 @@ class PostController extends Controller
             $chunkedArray = array_chunk($commentsData, 100);
             foreach ($chunkedArray as $index => $chunk) {
                 $userCount = Concurrency::run(function () use ($chunk) {
+                    set_time_limit(0);
+
                     foreach ($chunk as $postData) {
                         $post = Post::create($postData);
 

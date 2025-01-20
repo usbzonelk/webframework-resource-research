@@ -37,6 +37,8 @@ class AuthorController extends Controller
     }
     public function newAuth(Request $request)
     {
+        set_time_limit(0);
+
         $commentsData = $request->input('cats', []);
         if (!is_array($commentsData) || count($commentsData) < 1) {
             return response()->json(['error' => 'Invalid request data.'], 422);
@@ -45,6 +47,8 @@ class AuthorController extends Controller
         try {
             $chunkedArray = array_chunk($commentsData, 100);
             foreach ($chunkedArray as $index => $chunk) {
+                set_time_limit(0);
+
                 $userCount = Concurrency::run(
                     fn() => Author::insert($chunk)
                 );

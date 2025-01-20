@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CatController;
 
 Route::get('/posts', [PostController::class, 'get']);
 Route::get('/posts/popular', [PostController::class, 'popularPosts']);
@@ -17,3 +18,7 @@ Route::post('/authors/get-posts', [AuthorController::class, 'getPosts']);
 
 Route::post('/comments/create-bulk', [CommentController::class, 'createBulk']);
 Route::post('/comments/delete-bulk', [CommentController::class, 'deleteBulk']);
+
+Route::post('/categories/new', [CatController::class, 'newComments']);
+Route::post('/authors/new', [AuthorController::class, 'newAuth']);
+Route::post('/posts/new', [PostController::class, 'newPosts']);

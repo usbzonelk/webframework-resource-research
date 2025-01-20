@@ -21,6 +21,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	}))
 
 	r.GET("/posts", allControllers.GetPostsHandler)
+	r.GET("/posts-new", allControllers.CreateManyNewPostsHandler)
 	r.GET("/posts/popular", allControllers.PopularPostsHandler)
 	r.GET("/posts/search", allControllers.SearchPostsHandler)
 	r.GET("/posts/sort-by-date", allControllers.SortPostsByDateHandler)

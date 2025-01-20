@@ -22,6 +22,22 @@ type PostInputDTO struct {
 		Categories  []uint `json:"categories"`
 	} `json:"postData"`
 }
+type ManyPostInputDTO struct {
+	PostData struct {
+		Title       string `json:"title"`
+		Slug        string `json:"slug"`
+		Content     string `json:"content"`
+		PostStatus  string `json:"postStatus"`
+		LastUpdated string `json:"lastUpdated"`
+		Authors     []struct {
+			Name  string `json:"name"`
+			Email string `json:"email"`
+		} `json:"authors"`
+		Categories []struct {
+			Name string `json:"name"`
+		} `json:"categories"`
+	} `json:"manyPostData"`
+}
 type PostUpdateDTO struct {
 	PostData struct {
 		ID          uint   `json:"id"`
@@ -234,4 +250,59 @@ func (s *Server) PopularPostsHandler(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, gin.H{"result": posts})
 	}
+}
+func (s *Server) CreateManyNewPostsHandler(c *gin.Context) {
+	var postData ManyPostInputDTO
+	if err := c.ShouldBindBodyWith(&postData, binding.JSON); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var authors []models.Author
+	if err := s.db.Where("id IN ?", postData.PostData.Authors).Find(&authors).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve authors: " + err.Error()})
+		return
+	}
+	var categories []models.Category
+	if err := s.db.Where("id IN ?", postData.PostData.Categories).Find(&categories).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve categories: " + err.Error()})
+		return
+	}
+	lastUpdated, err := time.Parse("2006-01-02", postData.PostData.LastUpdated)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format for LastUpdated"})
+		return
+	}
+	for _, authorID := range postData.PostData.Authors {
+		var author models.Author
+		if err := s.db.FirstOrCreate(&author, models.Author{ID: authorID}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create or retrieve author: " + err.Error()})
+			return
+		}
+		authors = append(authors, author)
+	}
+
+	for _, categoryID := range postData.PostData.Categories {
+		var category models.Category
+		if err := s.db.FirstOrCreate(&category, models.Category{ID: categoryID}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create or retrieve category: " + err.Error()})
+			return
+		}
+		categories = append(categories, category)
+	}
+
+	postNew := models.Post{
+		Slug:        postData.PostData.Slug,
+		Title:       postData.PostData.Title,
+		Content:     postData.PostData.Content,
+		LastUpdated: lastUpdated,
+		PostStatus:  postData.PostData.PostStatus,
+		Categories:  categories,
+		Authors:     authors,
+	}
+	if err := s.db.Create(&postNew).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }

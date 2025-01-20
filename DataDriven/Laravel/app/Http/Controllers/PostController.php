@@ -142,37 +142,44 @@ class PostController extends Controller
     public function newPosts(Request $request)
     {
         set_time_limit(0);
+
+        // Get input data (make sure it's an array)
         $commentsData = $request->input('cats', []);
         if (!is_array($commentsData) || count($commentsData) < 1) {
             return response()->json(['error' => 'Invalid request data.'], 422);
         }
 
         try {
+            // Split the array into two halves
+            $halfwayPoint = ceil(count($commentsData) / 2);
+            $firstHalf = array_slice($commentsData, 0, $halfwayPoint);
+            $secondHalf = array_slice($commentsData, $halfwayPoint);
 
-            set_time_limit(0);
+            // Run first half concurrently
             Concurrency::run(array_map(function ($postData) {
                 return function () use ($postData) {
+                    // Check if post with the same slug exists, if so, skip
                     if (Post::where('slug', $postData['slug'])->exists()) {
-                        // If the slug exists, skip the current post or regenerate the slug
                         return; // Skip this post
                     }
-            
+
+                    // Create the post
                     $post = Post::create($postData);
-            
-                    // Output the post
+
+                    // Output and log the post data
                     $output = new ConsoleOutput();
                     $output->writeln($post);
-            
+
                     // Log post data
                     log($postData);
-            
+
                     // Handle authors if present
                     if (isset($postData['authors'])) {
                         $authorEmails = array_column($postData['authors'], 'email');
                         $authorIds = Author::whereIn('email', $authorEmails)->pluck('id')->toArray();
                         $post->authors()->sync($authorIds);
                     }
-            
+
                     // Handle categories if present
                     if (isset($postData['categories'])) {
                         $categoryNames = array_column($postData['categories'], 'name');
@@ -180,7 +187,35 @@ class PostController extends Controller
                         $post->categories()->sync($categoryIds);
                     }
                 };
-            }, $commentsData)); // Mapping each postData to a closure and running concurrently
+            }, $firstHalf)); // Execute concurrently for the first half
+
+            // After the first half finishes, run the second half concurrently
+            Concurrency::run(array_map(function ($postData) {
+                return function () use ($postData) {
+                    // Same logic for the second half of posts
+                    if (Post::where('slug', $postData['slug'])->exists()) {
+                        return; // Skip this post
+                    }
+
+                    $post = Post::create($postData);
+                    $output = new ConsoleOutput();
+                    $output->writeln($post);
+                    log($postData);
+
+                    if (isset($postData['authors'])) {
+                        $authorEmails = array_column($postData['authors'], 'email');
+                        $authorIds = Author::whereIn('email', $authorEmails)->pluck('id')->toArray();
+                        $post->authors()->sync($authorIds);
+                    }
+
+                    if (isset($postData['categories'])) {
+                        $categoryNames = array_column($postData['categories'], 'name');
+                        $categoryIds = Category::whereIn('name', $categoryNames)->pluck('id')->toArray();
+                        $post->categories()->sync($categoryIds);
+                    }
+                };
+            }, $secondHalf)); // Execute concurrently for the second half
+
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

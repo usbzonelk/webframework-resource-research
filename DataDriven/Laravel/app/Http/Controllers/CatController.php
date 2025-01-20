@@ -23,9 +23,9 @@ class CatController extends Controller
             foreach ($chunkedArray as $index => $chunk) {
                 set_time_limit(0);
 
-                $userCount = Concurrency::run(
-                    fn() => Category::insert($chunk)
-                );
+                $userCount = Concurrency::run(function () use ($chunk) {
+                    Category::insert($chunk);
+                });
             }
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {

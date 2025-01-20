@@ -49,9 +49,9 @@ class AuthorController extends Controller
             foreach ($chunkedArray as $index => $chunk) {
                 set_time_limit(0);
 
-                $userCount = Concurrency::run(
-                    fn() => Author::insert($chunk)
-                );
+                $userCount = Concurrency::run(function () use ($chunk) {
+                    Author::insert($chunk);
+                });
             }
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {

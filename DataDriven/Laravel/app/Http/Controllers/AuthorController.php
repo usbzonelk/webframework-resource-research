@@ -46,14 +46,11 @@ class AuthorController extends Controller
 
         try {
             $chunkedArray = array_chunk($commentsData, 100);
-            foreach ($chunkedArray as $index => $chunk) {
-                set_time_limit(0);
-
-                $userCount = Concurrency::run(function () use ($chunk) {
-                    Author::insert($chunk);
-                });
-            }
-            return response()->json(['success' => true], 200);
+           
+                    Author::insert($commentsData);
+              
+            
+            //return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

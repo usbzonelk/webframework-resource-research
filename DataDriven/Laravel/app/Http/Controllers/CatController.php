@@ -20,13 +20,9 @@ class CatController extends Controller
 
         try {
             $chunkedArray = array_chunk($commentsData, 100);
-            foreach ($chunkedArray as $index => $chunk) {
                 set_time_limit(0);
-
-                $userCount = Concurrency::run(function () use ($chunk) {
-                    Category::insert($chunk);
-                });
-            }
+                 DB::table('categories')->insert($commentsData)   ;       
+            
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Comment;
+use App\Models\Author;
+use App\Models\Category;
 use Illuminate\Support\Facades\Concurrency;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class PostController extends Controller
 {
@@ -145,24 +148,39 @@ class PostController extends Controller
         }
 
         try {
-            $chunkedArray = array_chunk($commentsData, 100);
-            foreach ($chunkedArray as $index => $chunk) {
-                $userCount = Concurrency::run(function () use ($chunk) {
-                    set_time_limit(0);
 
-                    foreach ($chunk as $postData) {
-                        $post = Post::create($postData);
-
-                        if (isset($postData['authors'])) {
-                            $post->authors()->sync($postData['authors']);
-                        }
-
-                        if (isset($postData['categories'])) {
-                            $post->categories()->sync($postData['categories']);
-                        }
+            set_time_limit(0);
+            Concurrency::run(array_map(function ($postData) {
+                return function () use ($postData) {
+                    if (Post::where('slug', $postData['slug'])->exists()) {
+                        // If the slug exists, skip the current post or regenerate the slug
+                        return; // Skip this post
                     }
-                });
-            }
+            
+                    $post = Post::create($postData);
+            
+                    // Output the post
+                    $output = new ConsoleOutput();
+                    $output->writeln($post);
+            
+                    // Log post data
+                    log($postData);
+            
+                    // Handle authors if present
+                    if (isset($postData['authors'])) {
+                        $authorEmails = array_column($postData['authors'], 'email');
+                        $authorIds = Author::whereIn('email', $authorEmails)->pluck('id')->toArray();
+                        $post->authors()->sync($authorIds);
+                    }
+            
+                    // Handle categories if present
+                    if (isset($postData['categories'])) {
+                        $categoryNames = array_column($postData['categories'], 'name');
+                        $categoryIds = Category::whereIn('name', $categoryNames)->pluck('id')->toArray();
+                        $post->categories()->sync($categoryIds);
+                    }
+                };
+            }, $commentsData)); // Mapping each postData to a closure and running concurrently
             return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

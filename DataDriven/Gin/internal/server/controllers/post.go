@@ -257,37 +257,31 @@ func (s *Server) CreateManyNewPostsHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var authors []models.Author
-	if err := s.db.Where("id IN ?", postData.PostData.Authors).Find(&authors).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve authors: " + err.Error()})
-		return
-	}
-	var categories []models.Category
-	if err := s.db.Where("id IN ?", postData.PostData.Categories).Find(&categories).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to retrieve categories: " + err.Error()})
-		return
-	}
+
 	lastUpdated, err := time.Parse("2006-01-02", postData.PostData.LastUpdated)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date format for LastUpdated"})
 		return
 	}
-	for _, authorID := range postData.PostData.Authors {
-		var author models.Author
-		if err := s.db.FirstOrCreate(&author, models.Author{ID: authorID}).Error; err != nil {
+
+	var authors []models.Author
+	for _, author := range postData.PostData.Authors {
+		var authorModel models.Author
+		if err := s.db.Where("name = ? AND email = ?", author.Name, author.Email).FirstOrCreate(&authorModel).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create or retrieve author: " + err.Error()})
 			return
 		}
-		authors = append(authors, author)
+		authors = append(authors, authorModel)
 	}
 
-	for _, categoryID := range postData.PostData.Categories {
-		var category models.Category
-		if err := s.db.FirstOrCreate(&category, models.Category{ID: categoryID}).Error; err != nil {
+	var categories []models.Category
+	for _, category := range postData.PostData.Categories {
+		var categoryModel models.Category
+		if err := s.db.Where("name = ?", category.Name).FirstOrCreate(&categoryModel).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create or retrieve category: " + err.Error()})
 			return
 		}
-		categories = append(categories, category)
+		categories = append(categories, categoryModel)
 	}
 
 	postNew := models.Post{

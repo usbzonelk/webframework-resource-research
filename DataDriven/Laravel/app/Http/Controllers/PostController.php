@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\Comment;
+use Illuminate\Support\Facades\Concurrency;
 
 class PostController extends Controller
 {
@@ -130,6 +131,39 @@ class PostController extends Controller
                     ->get();
                 return response()->json(['result' => $posts], 200);
             }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function newPosts(Request $request)
+    {
+        set_time_limit(0);
+        $commentsData = $request->input('cats', []);
+        if (!is_array($commentsData) || count($commentsData) < 1) {
+            return response()->json(['error' => 'Invalid request data.'], 422);
+        }
+
+        try {
+            $chunkedArray = array_chunk($commentsData, 100);
+            foreach ($chunkedArray as $index => $chunk) {
+                $userCount = Concurrency::run(function () use ($chunk) {
+                    set_time_limit(0);
+
+                    foreach ($chunk as $postData) {
+                        $post = Post::create($postData);
+
+                        if (isset($postData['authors'])) {
+                            $post->authors()->sync($postData['authors']);
+                        }
+
+                        if (isset($postData['categories'])) {
+                            $post->categories()->sync($postData['categories']);
+                        }
+                    }
+                });
+            }
+            return response()->json(['success' => true], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

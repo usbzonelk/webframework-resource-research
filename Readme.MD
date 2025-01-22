@@ -11,3 +11,4 @@
 | MariaDB | MongoDB | MSSQL | pgSQL (Phoenix) |pgSQL (Gin) |
 |----------|----------|----------|----------|----------|
 |61011|61012    | 61013   | 61014   |61015 |
+|mariadb|mongodb    | -   | phoenixdata   |gindata |

@@ -3,9 +3,9 @@ defmodule App.Repo.Migrations.CreatePosts do
 
   def change do
     create table(:posts) do
-      add :title, :string
+      add :title, :text
       add :slug, :string
-      add :content, :string
+      add :content, :text
       add :postStatus, :string
       add :lastUpdated, :naive_datetime
     end

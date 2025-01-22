@@ -4,7 +4,7 @@ import Config
 config :app, App.Repo,
   username: "root",
   password: "123456",
-  hostname: "127.0.0.1",
+  hostname: System.get_env("DBSERVER") || "127.0.0.1",
   database: "DataDrivenPhoenix",
   port: 61014,
   stacktrace: true,

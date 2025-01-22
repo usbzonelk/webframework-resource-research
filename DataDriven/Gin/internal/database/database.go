@@ -4,7 +4,7 @@ import (
 	"Gin/internal/models"
 	"fmt"
 	"log"
-
+    "os"
 	_ "github.com/joho/godotenv/autoload"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,15 +18,23 @@ type service struct {
 	db *gorm.DB
 }
 
+
 var (
 	database   = "DataDriven"
 	password   = "123456"
 	username   = "root"
 	port       = "61015"
-	host       = "localhost"
+	host       = os.Getenv("DBSERVER")
 	schema     = "public"
 	dbInstance *service
 )
+
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
+}
 
 func New() Service {
 	if dbInstance != nil {

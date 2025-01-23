@@ -20,7 +20,7 @@ type service struct {
 
 
 var (
-	database   = "DataDriven"
+	database   = "postgres"
 	password   = "123456"
 	username   = "root"
 	port       = "61015"

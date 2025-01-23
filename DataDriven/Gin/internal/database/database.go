@@ -52,7 +52,7 @@ func New() Service {
 	dbInstance = &service{
 		db: db,
 	}
-	runMigrations()
+	// runMigrations()
 	return dbInstance.db
 
 }

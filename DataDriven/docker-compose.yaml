@@ -1,0 +1,106 @@
+services:
+  mariadb:
+    image: mariadb:lts-ubi9
+    environment:
+      - MARIADB_ROOT_PASSWORD=123456
+      - max_connections=9999999
+      - max_questions=10000000
+      - MARIADB_DATABASE=laravel
+    ports:
+      - "61011:3306"
+    volumes:
+      - ../DataDriven-DbDumps/Laravel/laravel.2.sql:/docker-entrypoint-initdb.d/laravel.sql
+
+  mongodb:
+    image: mongo:6.0.20-jammy
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+    ports:
+      - "61012:27017"
+    volumes:
+      - ../DataDriven-DbDumps/Express/mongodump.gz:/tmp/mongodump.gz
+      - ../DataDriven-DbDumps/Express/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh  # Custom script to unzip and restore
+    entrypoint: ["bash", "-c", "mongod --fork --logpath /var/log/mongodb.log && sleep 5 && chmod +x /docker-entrypoint-initdb.d/init-mongo.sh && /docker-entrypoint-initdb.d/init-mongo.sh && mongod --shutdown && mongod --bind_ip_all"]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      
+  postgres-phoenix:
+    image: postgres:12.22-bookworm
+    environment:
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=DataDrivenPhoenix
+      - POSTGRES_USER=root
+    ports:
+      - "61014:5432"
+    volumes:
+      - ../DataDriven-DbDumps/Phoenix/phoenix.2.db_dump.sql:/docker-entrypoint-initdb.d/phoenix.2.db_dump.sql
+
+  postgres-gin:
+    image: postgres:12.22-bookworm
+    environment:
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=DataDriven
+      - POSTGRES_USER=root
+    ports:
+      - "61015:5432"
+    volumes:
+      - ../DataDriven-DbDumps/Gin/gin_10k_db_dump.sql:/docker-entrypoint-initdb.d/gin_10k_db_dump.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  express-datadriven:
+    build:
+      context: ./expressJS
+      dockerfile: Dockerfile
+    environment:
+      - DBSERVER=localhost
+    ports:
+      - "55001:55001"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    network_mode: host
+
+  laravel-datadriven:
+    build:
+      context: ./Laravel
+      dockerfile: Dockerfile
+    env_file:
+      - ./Laravel/.env
+    ports:
+      - "55021:55021"
+    depends_on:
+      - mariadb
+    network_mode: host
+
+  gin-datadriven:
+    build:
+      context: ./Gin
+      dockerfile: Dockerfile
+    environment:
+      - DBSERVER=localhost
+    ports:
+      - "55031:55031"
+    depends_on:
+      postgres-gin:
+        condition: service_healthy
+    network_mode: host
+
+  phoenix-datadriven:
+    build:
+      context: ./Phoenix/app
+      dockerfile: Dockerfile
+    environment:
+      - DBSERVER=localhost
+    depends_on:
+      - postgres-phoenix
+    ports:
+      - "55041:55041"
+    network_mode: host

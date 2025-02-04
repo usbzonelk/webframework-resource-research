@@ -13,7 +13,7 @@ const servers = [
 ];
 
 // Define load test ramp-up
-const vuCounts = [5, 100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
+const vuCounts = [100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
 
 // Request duration metric
 const requestDuration = new Trend('request_duration', true);

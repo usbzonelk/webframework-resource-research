@@ -1,0 +1,34 @@
+services:
+
+  express-concurrent:
+    build:
+      context: ./expressJS
+      dockerfile: Dockerfile
+    network_mode: host
+
+  laravel-concurrent:
+    build:
+      context: ./Laravel
+      dockerfile: Dockerfile
+    env_file:
+      - ./Laravel/.env
+    network_mode: host
+
+  gin-concurrent:
+    build:
+      context: ./Gin
+      dockerfile: Dockerfile
+    network_mode: host
+
+  phoenix-concurrent:
+    build:
+      context: ./phoenix_concurrent
+      dockerfile: Dockerfile
+    network_mode: host
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9999:9000"  # Port for the Portainer web UI
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Required to access Docker API

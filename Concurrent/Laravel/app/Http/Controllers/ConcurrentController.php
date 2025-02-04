@@ -10,6 +10,7 @@ class ConcurrentController extends Controller
 {
     public function readFile(Request $request)
     {
+        $filePath="";
         try {
             $filePath = storage_path('app/textFile.txt');
             if (!file_exists($filePath)) {
@@ -26,7 +27,7 @@ class ConcurrentController extends Controller
                 return response()->json(['success' => false, 'message' => 'Error reading file: ' . $e->getMessage()], 500);
             }
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => $filePath], 500);
         }
     }
 }

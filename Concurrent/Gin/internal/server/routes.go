@@ -20,6 +20,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 }
 
 func (s *Server) ReadHandler(c *gin.Context) {
+	
 	currentDir, err := os.Getwd()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -29,12 +30,12 @@ func (s *Server) ReadHandler(c *gin.Context) {
 		return
 	}
 
-	filePath := filepath.Join(currentDir, "textFile.txt")
+	filePath := filepath.Join("textFile.txt")
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": fmt.Sprintf("file does not exist at path: %s", filePath),
+			"message": fmt.Sprintf("file does not exist at path: %s %s", filePath, currentDir),
 		})
 		return
 	}

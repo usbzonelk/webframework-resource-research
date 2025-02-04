@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY --from=builder /app/main /app/
+COPY ./textFile.txt /app/
 
 EXPOSE 55033
 

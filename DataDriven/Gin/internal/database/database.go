@@ -20,11 +20,11 @@ type service struct {
 
 
 var (
-	database   = "postgres"
+	database   = "DataDriven"
 	password   = "123456"
 	username   = "root"
 	port       = "61015"
-	host       = os.Getenv("DBSERVER")
+	host       = "127.0.0.1"
 	schema     = "public"
 	dbInstance *service
 )

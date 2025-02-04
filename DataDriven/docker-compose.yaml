@@ -50,7 +50,7 @@ services:
     volumes:
       - ../DataDriven-DbDumps/Gin/gin_10k_db_dump.sql:/docker-entrypoint-initdb.d/gin_10k_db_dump.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
+      test: ["CMD-SHELL", "pg_isready -U root -d DataDriven"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -104,3 +104,11 @@ services:
     ports:
       - "55041:55041"
     network_mode: host
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9999:9000"  # Port for the Portainer web UI
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Required to access Docker API

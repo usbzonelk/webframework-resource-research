@@ -13,7 +13,7 @@ const servers = [
 ];
 
 // Define load test ramp-up
-const vuCounts = [100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
+const vuCounts = [20, 100, 500, 2000, 10000, 20000];
 
 // Request duration metric
 const requestDuration = new Trend('request_duration', true);
@@ -22,11 +22,11 @@ const requestDuration = new Trend('request_duration', true);
 const selectedServer = __ENV.SERVER || 'ALL';
 const cooldownTime = __ENV.COOLDOWN ? parseInt(__ENV.COOLDOWN, 10) : 5;
 const autoContinue = __ENV.AUTO_CONTINUE === 'true';
-const vucount = __ENV.VU ? parseInt(__ENV.VU) : vuCounts[0];
-
+const vucount = __ENV.VU && parseInt(__ENV.VU) && (parseInt(__ENV.VU) >= 0 && parseInt(__ENV.VU) < vuCounts.length) && Number.isInteger(vuCounts[parseInt(__ENV.VU)]) 
+           ? vuCounts[parseInt(__ENV.VU)] : vuCounts[0];
 // Function to generate random post IDs
 function generatePostIds() {
-    return Array.from({ length: 10 }, () => randomIntBetween(100, 9000)); // Random post IDs between 100-9000
+    return Array.from({ length: 5 }, () => randomIntBetween(100, 9000)); // Random post IDs between 100-9000
 }
 
 export default function () {
@@ -78,7 +78,6 @@ export default function () {
             }
 
             console.log(`✅ Successfully tested ${vu} users for ${name} on port ${port}.`);
-
             if (!autoContinue) {
                 console.log(`Pausing for user confirmation before continuing. Use AUTO_CONTINUE=true to skip this.`);
                 return;

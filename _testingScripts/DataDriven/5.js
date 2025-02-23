@@ -13,7 +13,7 @@ const servers = [
 ];
 
 // Define load test ramp-up
-const vuCounts = [100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
+const vuCounts = [20, 100, 500, 2000, 10000, 20000];
 
 // Request duration metric
 const requestDuration = new Trend('request_duration', true);
@@ -43,15 +43,15 @@ const authors = [
 function getRandomAuthors() {
     /*const numberOfAuthors = randomIntBetween(5, 10);
     return authors.sort(() => Math.random() - 0.5).slice(0, numberOfAuthors);*/
-    return [authors[2]];
+    return [authors[5], authors[10]];
 }
 
 // Command-line options
 const selectedServer = __ENV.SERVER || 'ALL';
 const cooldownTime = __ENV.COOLDOWN ? parseInt(__ENV.COOLDOWN, 10) : 5;
 const autoContinue = __ENV.AUTO_CONTINUE === 'true';
-const vucount = __ENV.VU ? parseInt(__ENV.VU) : vuCounts[0];
-
+const vucount = __ENV.VU && parseInt(__ENV.VU) && (parseInt(__ENV.VU) >= 0 && parseInt(__ENV.VU) < vuCounts.length) && Number.isInteger(vuCounts[parseInt(__ENV.VU)]) 
+           ? vuCounts[parseInt(__ENV.VU)] : vuCounts[0];
 export default function () {
     const serversToTest = selectedServer.toUpperCase() === 'ALL'
         ? servers
@@ -101,7 +101,6 @@ export default function () {
             }
 
             console.log(`✅ Successfully tested ${vu} users for ${name} on port ${port}.`);
-
             if (!autoContinue) {
                 console.log(`Pausing for user confirmation before continuing. Use AUTO_CONTINUE=true to skip this.`);
                 return;

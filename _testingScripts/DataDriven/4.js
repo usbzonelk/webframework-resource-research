@@ -12,8 +12,8 @@ const servers = [
 ];
 
 // Ramp-up configuration
-const vuCounts = [100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
-const endpoint = '/posts?page=1&size=10'; // Adjust this endpoint as needed
+const vuCounts = [20, 100, 500, 2000, 10000, 20000];
+const endpoint = '/posts?page=15&size=8'; 
 
 // Metrics for tracking request durations
 const requestDuration = new Trend('request_duration', true);
@@ -22,8 +22,8 @@ const requestDuration = new Trend('request_duration', true);
 const selectedServer = __ENV.SERVER || 'ALL'; // Example: SERVER=Express or SERVER=ALL
 const cooldownTime = __ENV.COOLDOWN ? parseInt(__ENV.COOLDOWN, 10) : 5; // Cooldown time in seconds
 const autoContinue = __ENV.AUTO_CONTINUE === 'true'; // Automatically continue to the next level if true
-const vucount = __ENV.VU ? parseInt(__ENV.VU) : vuCounts[0]; // Automatically continue to the next level if true
-
+const vucount = __ENV.VU && parseInt(__ENV.VU) && (parseInt(__ENV.VU) >= 0 && parseInt(__ENV.VU) < vuCounts.length) && Number.isInteger(vuCounts[parseInt(__ENV.VU)]) 
+           ? vuCounts[parseInt(__ENV.VU)] : vuCounts[0];
 export default function () {
     const serversToTest =
         selectedServer.toUpperCase() === 'ALL'

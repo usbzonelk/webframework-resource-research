@@ -13,8 +13,7 @@ const servers = [
 ];
 
 // Load test ramp-up configuration
-const vuCounts = [100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000];
-
+const vuCounts = [20, 100, 500, 2000, 10000, 20000];
 // Track request duration
 const requestDuration = new Trend('request_duration', true);
 
@@ -22,11 +21,12 @@ const requestDuration = new Trend('request_duration', true);
 const selectedServer = __ENV.SERVER || 'ALL';
 const cooldownTime = __ENV.COOLDOWN ? parseInt(__ENV.COOLDOWN, 10) : 5;
 const autoContinue = __ENV.AUTO_CONTINUE === 'true';
-const vucount = __ENV.VU ? parseInt(__ENV.VU) : vuCounts[0];
+const vucount = __ENV.VU && parseInt(__ENV.VU) && (parseInt(__ENV.VU) >= 0 && parseInt(__ENV.VU) < vuCounts.length) && Number.isInteger(vuCounts[parseInt(__ENV.VU)]) 
+           ? vuCounts[parseInt(__ENV.VU)] : vuCounts[0];
 
 // Function to generate random post status update
 function generatePostStatusUpdate() {
-    const numberOfPostIDs = randomIntBetween(1, 5); // Random number of post IDs (1-5)
+    const numberOfPostIDs = 2; // Random number of post IDs (1-5)
     const postIDs = Array.from({ length: numberOfPostIDs }, () =>
         randomIntBetween(100, 9000) // Post IDs between 100 and 9000
     );

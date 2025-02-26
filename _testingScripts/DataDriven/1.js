@@ -12,7 +12,7 @@ const servers = [
 ];
 
 // Ramp-up configuration
-const vuCounts = [20, 100, 500, 2000, 10000, 20000];
+const vuCounts = [1, 20, 100, 500, 2000, 10000, 20000];
 const endpoint = '/posts/popular'; // Adjust this endpoint as needed
 
 // Metrics for tracking request durations

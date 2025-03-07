@@ -3,7 +3,9 @@ FROM ubuntu:jammy
 ENV PHP_VERSION=8.2
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y wget gnupg2 \
+RUN apt-get update && apt-get install -y language-pack-en-base && \
+export LC_ALL=en_US.UTF-8 && \
+export LANG=en_US.UTF-8 && wget gnupg2 \
     && wget -qO - https://packages.sury.org/php/apt.gpg | tee /etc/apt/trusted.gpg.d/sury.asc \
     && apt-get update    curl \
     gnupg2 \
@@ -21,18 +23,18 @@ RUN add-apt-repository -y ppa:ondrej/php  \
     && apt-get update
 
 RUN apt-get install -y \
-    php${PHP_VERSION}-fpm \
-    php${PHP_VERSION}-cli \
-    php${PHP_VERSION}-common \
-    php${PHP_VERSION}-gd \
-    php${PHP_VERSION}-zip \
-    php${PHP_VERSION}-mysql \
-    php${PHP_VERSION}-pdo \
-    php${PHP_VERSION}-opcache \
-    php${PHP_VERSION}-mbstring \
-    php${PHP_VERSION}-bcmath \
-    php${PHP_VERSION}-xml \
-    php${PHP_VERSION}-curl \
+    php8.2-fpm \
+    php8.2-cli \
+    php8.2-common \
+    php8.2-gd \
+    php8.2-zip \
+    php8.2-mysql \
+    php8.2-pdo \
+    php8.2-opcache \
+    php8.2-mbstring \
+    php8.2-bcmath \
+    php8.2-xml \
+    php8.2-curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

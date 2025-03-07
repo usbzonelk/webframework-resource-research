@@ -43,7 +43,7 @@ export default function () {
         const { name, port } = serversToTest[i];
         const url = `http://localhost:${port}/comments/delete-bulk`;
 
-        console.log(`\nStarting benchmark for ${name} on port ${port}...\n`);
+ 
 
         let moveToNextServer = false;
 
@@ -53,7 +53,7 @@ export default function () {
             }
             if (moveToNextServer) break;
 
-            console.log(`\nTesting with ${vu} users on ${name}...`);
+ 
 
             for (let j = 0; j < vu; j++) {
                 const payload = JSON.stringify({ postIDs: generatePostIds() });
@@ -77,19 +77,14 @@ export default function () {
                 break;
             }
 
-            console.log(`✅ Successfully tested ${vu} users for ${name} on port ${port}.`);
-            if (!autoContinue) {
-                console.log(`Pausing for user confirmation before continuing. Use AUTO_CONTINUE=true to skip this.`);
-                return;
+             if (!autoContinue) {
+                 return;
             }
 
-            console.log(`Cooling down for ${cooldownTime} seconds...`);
-            sleep(cooldownTime);
+ 
         }
 
-        if (!moveToNextServer) {
-            console.log(`\nFinished benchmark for ${name} on port ${port}.\n`);
-        }
+ 
         sleep(1);
     }
 }

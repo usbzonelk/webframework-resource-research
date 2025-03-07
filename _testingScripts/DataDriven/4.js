@@ -39,7 +39,7 @@ export default function () {
         const { name, port } = serversToTest[i];
         const url = `http://localhost:${port}${endpoint}`;
 
-        console.log(`\nStarting benchmark for ${name} on port ${port}...\n`);
+ 
 
         let moveToNextServer = false; // Flag to move to the next server
 
@@ -49,7 +49,7 @@ export default function () {
             };
             if (moveToNextServer) break; // Skip remaining VU counts if failure occurred
 
-            console.log(`\nTesting with ${vu} users on ${name}...`);
+ 
 
             let allSuccess = true; // Track if all requests succeed at this VU count
 
@@ -84,24 +84,11 @@ export default function () {
                 break;
             }
 
-            console.log(
-                `✅ Successfully tested ${vu} users for ${name} on port ${port}. Avg Duration: ${requestDuration.avg || 0} ms`
-            );
+    
 
             if (!autoContinue) {
-                console.log(
-                    `Pausing for user confirmation before continuing to the next level. (AUTO_CONTINUE=false)`
-                );
-                console.log(`Use AUTO_CONTINUE=true to skip this step in future.`);
-                return; // Exit the script until the next manual run
-            }
-
-            console.log(`Cooling down for ${cooldownTime} seconds...`);
-            sleep(cooldownTime); // Pause before ramping up
-        }
-
-        if (!moveToNextServer) {
-            console.log(`\nFinished benchmark for ${name} on port ${port}.\n`);
+                 return; // Exit the script until the next manual run
+            
         }
         sleep(1); // Pause between servers
     }

@@ -22,8 +22,8 @@ const requestDuration = new Trend('request_duration', true);
 const selectedServer = __ENV.SERVER || 'ALL'; // Example: SERVER=Express or SERVER=ALL
 const cooldownTime = __ENV.COOLDOWN ? parseInt(__ENV.COOLDOWN, 10) : 5; // Cooldown time in seconds
 const autoContinue = __ENV.AUTO_CONTINUE === 'true'; // Automatically continue to the next level if true
-const vucount = __ENV.VU && parseInt(__ENV.VU) && (parseInt(__ENV.VU) >= 0 && parseInt(__ENV.VU) < vuCounts.length) && Number.isInteger(vuCounts[parseInt(__ENV.VU)]) 
-           ? vuCounts[parseInt(__ENV.VU)] : vuCounts[0];
+const vucount = __ENV.VU && parseInt(__ENV.VU) && (parseInt(__ENV.VU) >= 0 && parseInt(__ENV.VU) < vuCounts.length) && Number.isInteger(vuCounts[parseInt(__ENV.VU)])
+    ? vuCounts[parseInt(__ENV.VU)] : vuCounts[0];
 export default function () {
     const serversToTest =
         selectedServer.toUpperCase() === 'ALL'
@@ -39,68 +39,47 @@ export default function () {
         const { name, port } = serversToTest[i];
         const url = `http://localhost:${port}${endpoint}`;
 
-        console.log(`\nStarting benchmark for ${name} on port ${port}...\n`);
-
         let moveToNextServer = false; // Flag to move to the next server
 
-        for (let vu of vuCounts) {
-            if (!autoContinue && vucount) {
-                vu = vucount;
-            };
-            if (moveToNextServer) break; // Skip remaining VU counts if failure occurred
+        let vu = vucount
+        if (!autoContinue && vucount) {
+            vu = vucount;
+        };
 
-            console.log(`\nTesting with ${vu} users on ${name}...`);
+        let allSuccess = true; // Track if all requests succeed at this VU count
 
-            let allSuccess = true; // Track if all requests succeed at this VU count
+        for (let j = 0; j < vu; j++) {
+            const startTime = Date.now(); // Track start time
+            const response = http.get(url, { timeout: "9999999s" });
+            const endTime = Date.now(); // Track end time
 
-            for (let j = 0; j < vu; j++) {
-                const startTime = Date.now(); // Track start time
-                const response = http.get(url);
-                const endTime = Date.now(); // Track end time
+            const duration = endTime - startTime; // Calculate duration
+            requestDuration.add(duration); // Log request duration
 
-                const duration = endTime - startTime; // Calculate duration
-                requestDuration.add(duration); // Log request duration
+            const success = check(response, {
+                'status is 2xx': (r) => r.status >= 200 && r.status < 300,
+            });
 
-                const success = check(response, {
-                    'status is 2xx': (r) => r.status >= 200 && r.status < 300,
-                });
-
-                if (!success) {
-                    console.warn(
-                        `⚠️ Request failed for ${name} on port ${port} at ${vu} users: Status ${response.status}`
-                    );
-
-                    // Stop ramp-up for this server and move to the next
-                    moveToNextServer = true;
-                    break;
-                }
-            }
-
-            if (moveToNextServer) {
-                console.log(
-                    `Stopping benchmark for ${name} on port ${port}: Failed at ${vu} users. Moving to next server.\n`
+            if (!success) {
+                console.warn(
+                    `⚠️ Request failed for ${name} on port ${port} at ${vu} users: Status ${response.status} \n ${response}`
                 );
+
+                // Stop ramp-up for this server and move to the next
+                moveToNextServer = true;
                 break;
             }
-
-            console.log(
-                `✅ Successfully tested ${vu} users for ${name} on port ${port}. Avg Duration: ${requestDuration.avg || 0} ms`
-            );
-
-            if (!autoContinue) {
-                console.log(
-                    `Pausing for user confirmation before continuing to the next level. (AUTO_CONTINUE=false)`
-                );
-                console.log(`Use AUTO_CONTINUE=true to skip this step in future.`);
-                return; // Exit the script until the next manual run
-            }
-
-            console.log(`Cooling down for ${cooldownTime} seconds...`);
-            sleep(cooldownTime); // Pause before ramping up
         }
 
-        if (!moveToNextServer) {
-            console.log(`\nFinished benchmark for ${name} on port ${port}.\n`);
+        if (moveToNextServer) {
+            console.log(
+                `Stopping benchmark for ${name} on port ${port}: Failed at ${vu} users. Moving to next server.\n`
+            );
+            break;
+        }
+
+        if (!autoContinue) {
+            return; // Exit the script until the next manual run
         }
         sleep(1); // Pause between servers
     }

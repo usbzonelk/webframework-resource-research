@@ -6,6 +6,7 @@ services:
       - max_connections=9999999
       - max_questions=10000000
       - MARIADB_DATABASE=laravel
+    command: ["mysql", "--max_connections=20000"]
     ports:
       - "61011:3306"
     volumes:
@@ -34,6 +35,7 @@ services:
       - POSTGRES_PASSWORD=123456
       - POSTGRES_DB=DataDrivenPhoenix
       - POSTGRES_USER=root
+    command: ["postgres", "-N", "20000"]
     ports:
       - "61014:5432"
     volumes:

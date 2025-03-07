@@ -45,6 +45,7 @@ services:
       - POSTGRES_PASSWORD=123456
       - POSTGRES_DB=DataDriven
       - POSTGRES_USER=root
+    command: ["postgres", "-N", "20000"]
     ports:
       - "61015:5432"
     volumes:

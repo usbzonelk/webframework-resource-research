@@ -3,8 +3,11 @@ FROM ubuntu:jammy
 ENV PHP_VERSION=8.2
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y \
-    curl \
+RUN apt-get update && apt-get install -y language-pack-en-base && \
+export LC_ALL=en_US.UTF-8 && \
+export LANG=en_US.UTF-8 && wget gnupg2 \
+    && wget -qO - https://packages.sury.org/php/apt.gpg | tee /etc/apt/trusted.gpg.d/sury.asc \
+    && apt-get update    curl \
     gnupg2 \
     ca-certificates \
     unzip \

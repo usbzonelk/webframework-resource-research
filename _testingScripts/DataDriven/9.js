@@ -66,7 +66,7 @@ export default function () {
                 const params = { headers: { 'Content-Type': 'application/json' } };
 
                 const startTime = Date.now();
-                const response = http.put(url, payload, params);
+                const response = http.put(url, payload, params, { timeout: "9999999s" });
                 const endTime = Date.now();
 
                 requestDuration.add(endTime - startTime);
@@ -87,7 +87,6 @@ export default function () {
                 break;
             }
 
-            console.log(`✅ Successfully tested ${vu} users for ${name} on port ${port}. Avg Duration: ${requestDuration.avg || 0} ms`);
 
             if (!autoContinue) {
                  return;

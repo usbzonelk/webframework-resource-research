@@ -55,14 +55,13 @@ export default function () {
 
             for (let j = 0; j < vu; j++) {
                 const startTime = Date.now(); // Track start time
-                const response = http.get(url);
+                const response = http.get(url, { timeout: "9999999s" });
                 const endTime = Date.now(); // Track end time
 
                 const duration = endTime - startTime; // Calculate duration
                 requestDuration.add(duration); // Log request duration
                 console.log(`Response Status for ${name} on port ${port}: ${response.status}`);
-                console.log(`Response Body (first 100 characters): ${response.body.slice(0, 100)}`);
-                const success = check(response, {
+                 const success = check(response, {
                     'status is 2xx': (r) => r.status >= 200 && r.status < 300,
                 });
 

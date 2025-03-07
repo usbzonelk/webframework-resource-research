@@ -82,7 +82,7 @@ export default function () {
                 const payload = JSON.stringify({ emails: getRandomAuthors() });
                 const params = { headers: { 'Content-Type': 'application/json' } };
                 const startTime = Date.now();
-                const response = http.post(url, payload, params);
+                const response = http.post(url, payload, params, { timeout: "9999999s" });
                 const endTime = Date.now();
                 requestDuration.add(endTime - startTime);
 

@@ -89,8 +89,9 @@ export default function () {
                 check(response, { 'status is 2xx': (r) => r.status >= 200 && r.status < 300 });
 
                 if (response.status >= 400) {
-                    console.warn(`⚠️ Request failed for ${name} on port ${port} at ${vu} users: Status ${response.status}`);
-                    moveToNextServer = true;
+console.warn(
+                    `⚠️ Request failed for ${name} on port ${port} at ${vu} users: Status ${response.status} \n ${JSON.stringify(response)}`
+                );                    moveToNextServer = true;
                     break;
                 }
             }

@@ -62,7 +62,7 @@ export default function () {
 
             if (!success) {
                 console.warn(
-                    `⚠️ Request failed for ${name} on port ${port} at ${vu} users: Status ${response.status} \n ${response}`
+                    `⚠️ Request failed for ${name} on port ${port} at ${vu} users: Status ${response.status} \n ${JSON.stringify(response)}`
                 );
 
                 // Stop ramp-up for this server and move to the next

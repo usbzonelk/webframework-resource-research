@@ -6,7 +6,7 @@ services:
       - max_connections=9999999
       - max_questions=10000000
       - MARIADB_DATABASE=laravel
-    command: ["mysql", "--max_connections=20000"]
+    #command: ["mysql", "--max_connections=20000"]
     ports:
       - "61011:3306"
     volumes:

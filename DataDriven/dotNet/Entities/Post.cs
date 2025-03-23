@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace dotNet.Entities;
 
 [Index(nameof(Slug), IsUnique = true)]
-class Post
+public class Post
 {
     [Key]
     public int Id { get; set; }
@@ -28,6 +28,7 @@ class Post
     public Category[]? Categories { get; set; }
 
     public Author[]? Authors { get; set; }
+    public Comment[]? Comments { get; set; }
 }
 
 public enum PostStatus

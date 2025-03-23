@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace dotNet.Entities;
 
 [Index(nameof(Name), IsUnique = true)]
-class Category
+public class Category
 {
 
     [Key]
@@ -11,4 +11,6 @@ class Category
 
     [Required]
     public string Name { get; set; }
+
+    public virtual ICollection<Post> Posts { get; set; } = new HashSet<Post>();
 }

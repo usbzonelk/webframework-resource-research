@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
+namespace dotNet.Entities;
+
 [Index(nameof(Email), IsUnique = true)]
-class Author
+public class Author
 {
     [Key]
     public int Id { get; set; }
@@ -12,4 +14,6 @@ class Author
 
     [Required]
     public string Name { get; set; }
+
+    public virtual ICollection<Post> Posts { get; set; } = new HashSet<Post>();
 }

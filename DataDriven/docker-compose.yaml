@@ -11,6 +11,15 @@ services:
       - "61011:3306"
     volumes:
       - ../DataDriven-DbDumps/Laravel/laravel.2.sql:/docker-entrypoint-initdb.d/laravel.sql
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-CU18-ubuntu-22.04
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=HiStrong!Passw0rd
+    ports:
+      - "61013:1433"
+   # volumes:
+    #  - ./init:/docker-entrypoint-initdb.d
 
   mongodb:
     image: mongo:6.0.20-jammy
